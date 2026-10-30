@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "author": "Mariano Gómez",
+    "date": "Hace 2 semanas",
+    "rating": 5,
+    "city": "Santiago del Estero",
+    "comment": "Excelente atención de todo el equipo de Budaner. Compré una Amarok impecable, la entrega fue en tiempo y forma y se encargaron de toda la transferencia sin problemas. Totalmente recomendables por su seriedad.",
+    "vehicle": "Volkswagen Amarok"
+  },
+  {
+    "id": 2,
+    "author": "Florencia Morales",
+    "date": "Hace 1 mes",
+    "rating": 5,
+    "city": "La Banda",
+    "comment": "Súper agradecida con el asesoramiento y la calidez humana. Me financiaron el Yaris con cuotas que se adaptaron perfecto a lo que podía pagar. 100% de confianza, dan mucha tranquilidad.",
+    "vehicle": "Toyota Yaris"
+  },
+  {
+    "id": 3,
+    "author": "Carlos R. Santillán",
+    "date": "Hace 2 meses",
+    "rating": 5,
+    "city": "Santiago del Estero",
+    "comment": "La mejor agencia de autos de Santiago del Estero sin ninguna duda. Las unidades están en estado inmaculado, súper cuidados y la atención directa de los dueños hace la diferencia. Cumplieron todo lo pactado.",
+    "vehicle": "Hyundai Ioniq"
+  },
+  {
+    "id": 4,
+    "author": "Valeria Navarro",
+    "date": "Hace 3 meses",
+    "rating": 5,
+    "city": "Fernández",
+    "comment": "Compramos nuestro primer auto familiar acá y la experiencia fue transparente desde el primer minuto. Todo certificado y listo para rodar. Da gusto hacer negocios con gente seria y honesta.",
+    "vehicle": "Ford Ka Freestyle"
+  }
+]
