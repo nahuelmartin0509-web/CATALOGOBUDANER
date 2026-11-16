@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Panel Budaner | Administración</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+  <style>body{font-family:'Inter',system-ui,sans-serif}.inp{width:100%;font-size:.875rem;padding:.6rem .75rem;border-radius:.75rem;border:1px solid #e2e8f0;background:#f8fafc}.inp:focus{outline:none;background:#fff;box-shadow:0 0 0 2px #0284c7}.lbl{display:block;font-size:.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem}</style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased">
+
+  <!-- LOGIN -->
+  <section id="login-view" class="min-h-screen flex items-center justify-center p-4">
+    <form id="login-form" class="bg-white w-full max-w-sm rounded-3xl shadow-xl p-6 sm:p-8 space-y-4">
+      <img src="assets/logo.png" alt="Budaner" class="h-20 mx-auto object-contain" />
+      <h1 class="text-center text-lg font-extrabold">Panel de Gestión</h1>
+      <div><label class="lbl" for="email">Correo</label><input id="email" type="email" required autocomplete="username" class="inp" /></div>
+      <div><label class="lbl" for="password">Contraseña</label><input id="password" type="password" required autocomplete="current-password" class="inp" /></div>
+      <p id="login-error" class="hidden text-xs text-red-600 font-semibold"></p>
+      <button class="w-full py-3 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold uppercase tracking-wider text-sm">Ingresar</button>
+    </form>
+  </section>
+
+  <!-- APP -->
+  <section id="app-view" class="hidden">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="assets/logo.png" class="h-10 object-contain" alt="Budaner" />
+          <span class="hidden sm:inline text-sm font-bold text-slate-500">Panel de Gestión</span>
+        </div>
+        <div class="flex items-center gap-3 text-xs">
+          <a href="index.html" target="_blank" class="font-bold text-[#0284c7] hover:underline">Ver catálogo</a>
+          <span id="user-email" class="hidden sm:inline text-slate-400"></span>
+          <button id="logout-btn" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold">Salir</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5 grid grid-cols-1 lg:grid-cols-5 gap-5">
+
+      <!-- FORM -->
+      <form id="vehicle-form" class="lg:col-span-3 bg-white rounded-3xl shadow-sm border border-slate-200 p-4 sm:p-6 space-y-5 self-start">
+        <div class="flex items-center justify-between">
+          <h2 id="form-title" class="text-lg font-extrabold">Nuevo vehículo</h2>
+          <button type="button" id="cancel-edit" class="hidden text-xs font-bold text-slate-500 hover:underline">Cancelar edición</button>
+        </div>
+
+        <fieldset class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <legend class="text-xs font-extrabold text-slate-400 uppercase mb-2 col-span-full">Datos del vehículo (públicos)</legend>
+          <div><label class="lbl">Marca *</label><input name="brand" required class="inp" placeholder="Toyota" /></div>
+          <div><label class="lbl">Modelo *</label><input name="model" required class="inp" placeholder="Yaris" /></div>
+          <div class="col-span-2 sm:col-span-1"><label class="lbl">Versión</label><input name="version" class="inp" placeholder="XLS 1.5 CVT" /></div>
+          <div><label class="lbl">Año *</label><input name="year" type="number" min="1980" max="2100" required class="inp" placeholder="2022" /></div>
+          <div><label class="lbl">Kilometraje *</label><input name="km" type="number" min="0" required class="inp" placeholder="28000" /></div>
+          <div><label class="lbl">Color</label><input name="color" class="inp" placeholder="Gris Granito" /></div>
+          <div class="col-span-2 sm:col-span-1"><label class="lbl">Motor</label><input name="engine" class="inp" placeholder="1.5 VVT-i 107 CV" /></div>
+          <div><label class="lbl">Caja</label>
+            <select name="transmission" class="inp"><option>Manual</option><option>Automática</option><option>Automática CVT</option><option>Automática DCT</option></select></div>
+          <div><label class="lbl">Combustible</label>
+            <select name="fuel" class="inp"><option>Nafta</option><option>Diésel</option><option>GNC</option><option>Nafta/GNC</option><option>Híbrido</option><option>Eléctrico</option></select></div>
+          <div><label class="lbl">Carrocería</label>
+            <select name="body" class="inp"><option>Hatchback</option><option>Sedán</option><option>SUV</option><option>Pick-Up</option><option>Utilitario</option><option>Crossover</option><option>Coupé</option><option>Monovolumen</option></select></div>
+          <div><label class="lbl">Estado / Financiación</label>
+            <select name="status" class="inp">
+              <option value="apto">Apto Financiación</option>
+              <option value="sin">Sin etiqueta</option>
+              <option value="reservado">Reservado</option>
+            </select></div>
+        </fieldset>
+
+        <div>
+          <label class="lbl">Equipamiento destacado (uno por línea)</label>
+          <textarea name="features" rows="5" class="inp" placeholder="Aire acondicionado&#10;Cámara de retroceso&#10;Pantalla multimedia"></textarea>
+        </div>
+
+        <!-- PRIVADO -->
+        <div class="rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50 p-4">
+          <div class="flex items-center gap-2 mb-2 text-amber-800 text-xs font-extrabold uppercase">🔒 Privado — nunca se muestra en la web pública</div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2"><label class="lbl">Precio / Costo</label><input name="price" type="number" min="0" step="any" class="inp" placeholder="0" /></div>
+            <div><label class="lbl">Moneda</label><select name="currency" class="inp"><option>ARS</option><option>USD</option></select></div>
+          </div>
+        </div>
+
+        <!-- FOTOS -->
+        <div>
+          <label class="lbl">Fotos (se comprimen automáticamente) — la primera es la portada</label>
+          <input id="photo-input" type="file" accept="image/*" multiple class="block w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[#0284c7] file:text-white file:font-bold" />
+          <div id="photo-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3"></div>
+        </div>
+
+        <p id="form-msg" class="hidden text-sm font-semibold"></p>
+        <button id="save-btn" class="w-full py-3.5 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] disabled:opacity-60 text-white font-extrabold uppercase tracking-wider text-sm">Guardar vehículo</button>
+      </form>
+
+      <!-- LISTA -->
+      <aside class="lg:col-span-2 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-extrabold">Inventario <span id="count" class="text-slate-400 text-sm font-semibold"></span></h2>
+        </div>
+        <input id="list-search" placeholder="Buscar en inventario..." class="inp bg-white" />
+        <div id="vehicle-list" class="space-y-2"></div>
+      </aside>
+    </main>
+  </section>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+  (function () {
+    const auth = firebase.auth();
+    const storage = firebase.storage();
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    let vehicles = [];            // públicos
+    let priv = {};                // id -> {price,currency}
+    let unsubs = [];
+    let editingId = null;
+    let photos = [];              // [{url} | {blob, preview}]
+    let removedUrls = [];
+
+    // ---------- Auth ----------
+    $('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = $('login-error'); err.classList.add('hidden');
+      try { await auth.signInWithEmailAndPassword($('email').value.trim(), $('password').value); }
+      catch (ex) { err.textContent = 'Correo o contraseña incorrectos.'; err.classList.remove('hidden'); }
+    });
+    $('logout-btn').addEventListener('click', () => auth.signOut());
+
+    auth.onAuthStateChanged((user) => {
+      unsubs.forEach((u) => u()); unsubs = [];
+      if (!user) {
+        $('app-view').classList.add('hidden'); $('login-view').classList.remove('hidden');
+        vehicles = []; priv = {}; return;
+      }
+      $('login-view').classList.add('hidden'); $('app-view').classList.remove('hidden');
+      $('user-email').textContent = user.email;
+      unsubs.push(db.collection('vehicles').onSnapshot((s) => { vehicles = s.docs.map((d) => ({ id: d.id, ...d.data() })); renderList(); }));
+      unsubs.push(db.collection('vehicles_private').onSnapshot((s) => { priv = {}; s.docs.forEach((d) => (priv[d.id] = d.data())); renderList(); }));
+    });
+
+    // ---------- Lista ----------
+    $('list-search').addEventListener('input', renderList);
+    function renderList() {
+      const q = $('list-search').value.trim().toLowerCase();
+      const rows = vehicles
+        .filter((v) => !q || [v.brand, v.model, v.version, v.year].join(' ').toLowerCase().includes(q))
+        .sort((a, b) => ((b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0) - (a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0)));
+      $('count').textContent = '(' + vehicles.length + ')';
+      $('vehicle-list').innerHTML = rows.length ? rows.map((v) => {
+        const p = priv[v.id];
+        const price = p && p.price != null && p.price !== '' ? p.currency + ' ' + Number(p.price).toLocaleString('es-AR') : 'Sin precio';
+        const ph = (v.photos && v.photos[0]) ? `<img src="${esc(v.photos[0])}" class="w-full h-full object-cover">` : '';
+        return `<div class="bg-white rounded-2xl border border-slate-200 p-2.5 flex gap-3 items-center">
+          <div class="w-20 h-16 rounded-xl bg-slate-100 overflow-hidden shrink-0">${ph}</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-bold truncate">${esc([v.brand, v.model, v.version].filter(Boolean).join(' '))}</div>
+            <div class="text-[11px] text-slate-500">${esc(v.year)} • ${Number(v.km || 0).toLocaleString('es-AR')} km • ${esc(v.status === 'apto' ? 'Apto fin.' : v.status === 'reservado' ? 'Reservado' : '—')}</div>
+            <div class="text-xs font-extrabold text-amber-700">🔒 ${esc(price)}</div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <button data-edit="${esc(v.id)}" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold">Editar</button>
+            <button data-del="${esc(v.id)}" class="px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold">Borrar</button>
+          </div></div>`;
+      }).join('') : '<p class="text-sm text-slate-400 text-center py-8">Todavía no cargaste vehículos.</p>';
+    }
+    $('vehicle-list').addEventListener('click', (e) => {
+      const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+      if (ed) startEdit(ed.dataset.edit);
+      if (del) removeVehicle(del.dataset.del);
+    });
+
+    async function removeVehicle(id) {
+      const v = vehicles.find((x) => x.id === id);
+      if (!v || !confirm('¿Eliminar "' + [v.brand, v.model].join(' ') + '"? Se quitará del catálogo público.')) return;
+      const batch = db.batch();
+      batch.delete(db.collection('vehicles').doc(id));
+      batch.delete(db.collection('vehicles_private').doc(id));
+      await batch.commit();
+      (v.photos || []).forEach((u) => storage.refFromURL(u).delete().catch(() => {}));
+      if (editingId === id) resetForm();
+    }
+
+    // ---------- Formulario ----------
+    const form = $('vehicle-form');
+    function msg(text, ok) {
+      const m = $('form-msg'); m.textContent = text; m.className = 'text-sm font-semibold ' + (ok ? 'text-emerald-600' : 'text-red-600');
+    }
+    function resetForm() {
+      editingId = null; photos = []; removedUrls = [];
+      form.reset(); renderPhotos();
+      $('form-title').textContent = 'Nuevo vehículo'; $('cancel-edit').classList.add('hidden');
+      $('form-msg').className = 'hidden';
+    }
+    $('cancel-edit').addEventListener('click', resetForm);
+
+    function startEdit(id) {
+      const v = vehicles.find((x) => x.id === id); if (!v) return;
+      resetForm(); editingId = id;
+      ['brand', 'model', 'version', 'year', 'km', 'color', 'engine', 'transmission', 'fuel', 'body', 'status'].forEach((k) => { if (form.elements[k] && v[k] != null) form.elements[k].value = v[k]; });
+      form.elements.features.value = (v.features || []).join('\n');
+      const p = priv[id] || {};
+      form.elements.price.value = p.price != null ? p.price : '';
+      form.elements.currency.value = p.currency || 'ARS';
+      photos = (v.photos || []).map((url) => ({ url }));
+      renderPhotos();
+      $('form-title').textContent = 'Editando: ' + [v.brand, v.model].join(' ');
+      $('cancel-edit').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ---------- Fotos ----------
+    function renderPhotos() {
+      $('photo-grid').innerHTML = photos.map((p, i) => `
+        <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border ${i === 0 ? 'border-[#0284c7] border-2' : 'border-slate-200'}">
+          <img src="${esc(p.url || p.preview)}" class="w-full h-full object-cover">
+          ${i === 0 ? '<span class="absolute top-1 left-1 bg-[#0284c7] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">PORTADA</span>' : `<button type="button" data-main="${i}" class="absolute bottom-1 left-1 bg-white/90 text-[9px] font-bold px-1.5 py-0.5 rounded">★ Portada</button>`}
+          <button type="button" data-rm="${i}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-slate-900/80 text-white text-xs font-bold">✕</button>
+        </div>`).join('');
+    }
+    $('photo-grid').addEventListener('click', (e) => {
+      const rm = e.target.closest('[data-rm]'), mn = e.target.closest('[data-main]');
+      if (rm) { const [p] = photos.splice(+rm.dataset.rm, 1); if (p.url) removedUrls.push(p.url); renderPhotos(); }
+      if (mn) { const [p] = photos.splice(+mn.dataset.main, 1); photos.unshift(p); renderPhotos(); }
+    });
+    $('photo-input').addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files); e.target.value = '';
+      for (const f of files) {
+        if (!f.type.startsWith('image/')) continue;
+        try { const blob = await compress(f); photos.push({ blob, preview: URL.createObjectURL(blob) }); }
+        catch (ex) { msg('No se pudo procesar "' + f.name + '".', false); }
+      }
+      renderPhotos();
+    });
+
+    // Compresión: lado mayor 1400px, JPEG 0.78
+    async function compress(file, max = 1400, quality = 0.78) {
+      const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('blob'))), 'image/jpeg', quality));
+    }
+
+    // ---------- Guardar ----------
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = $('save-btn'); btn.disabled = true; btn.textContent = 'Guardando...';
+      try {
+        const f = form.elements;
+        const isNew = !editingId;
+        const ref = isNew ? db.collection('vehicles').doc() : db.collection('vehicles').doc(editingId);
+        const id = ref.id;
+
+        // subir fotos nuevas
+        const urls = [];
+        for (let i = 0; i < photos.length; i++) {
+          const p = photos[i];
+          if (p.url) { urls.push(p.url); continue; }
+          btn.textContent = 'Subiendo foto ' + (i + 1) + '/' + photos.length + '...';
+          const r = storage.ref('vehicles/' + id + '/' + Date.now() + '-' + i + '.jpg');
+          await r.put(p.blob, { contentType: 'image/jpeg' });
+          urls.push(await r.getDownloadURL());
+        }
+
+        const pub = {
+          brand: f.brand.value.trim(), model: f.model.value.trim(), version: f.version.value.trim(),
+          year: Number(f.year.value), km: Number(f.km.value), color: f.color.value.trim(),
+          engine: f.engine.value.trim(), transmission: f.transmission.value, fuel: f.fuel.value,
+          body: f.body.value, status: f.status.value,
+          features: f.features.value.split('\n').map((x) => x.trim()).filter(Boolean),
+          photos: urls,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (isNew) pub.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+
+        const batch = db.batch();
+        batch.set(ref, pub, { merge: true });
+        batch.set(db.collection('vehicles_private').doc(id), {
+          price: f.price.value === '' ? null : Number(f.price.value),
+          currency: f.currency.value
+        }, { merge: true });
+        await batch.commit();
+
+        removedUrls.forEach((u) => storage.refFromURL(u).delete().catch(() => {}));
+        resetForm(); msg('✓ Guardado. Ya está visible en el catálogo.', true);
+      } catch (ex) {
+        console.error(ex);
+        msg('Error al guardar: ' + (ex.message || ex), false);
+      } finally { btn.disabled = false; btn.textContent = 'Guardar vehículo'; }
+    });
+  })();
+  </script>
+</body>
+</html>
