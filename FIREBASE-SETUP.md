@@ -2,7 +2,7 @@
 
 1. **Authentication** → Sign-in method → habilitar *Correo/Contraseña*. En *Users* crear el usuario administrador (y desactivar cualquier otro método de alta).
 2. **Firestore Database** → crear base de datos → pestaña *Rules* → pegar el contenido de `firestore.rules` → Publicar.
-3. **Storage** → *Get started* → pestaña *Rules* → pegar `storage.rules` → Publicar. (Storage puede requerir el plan Blaze; tiene capa gratuita.)
+3. **No se usa Storage** (el proyecto funciona 100% en el plan gratuito Spark). Las fotos se comprimen en el navegador (~70 KB) y se guardan como texto en el array `imagenes` del documento de Firestore (máx. 8 por vehículo, límite 1 MB por documento).
 4. **Authentication → Settings → Authorized domains**: agregar el dominio donde se publique el sitio (ej. `nahuelmartin0509-web.github.io`). `localhost` ya viene autorizado.
 5. Abrir `admin.html`, ingresar y cargar vehículos.
 

@@ -46,7 +46,7 @@ function normalizeVehicle(id, d) {
     body: d.body || "",
     status: d.status || "apto",
     features: Array.isArray(d.features) ? d.features : [],
-    photos: Array.isArray(d.photos) ? d.photos : [],
+    photos: Array.isArray(d.imagenes) ? d.imagenes : (Array.isArray(d.photos) ? d.photos : []),
     createdAt: created
   };
 }
