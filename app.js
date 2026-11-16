@@ -17,8 +17,6 @@ const VEHICLES = [
     model: "Yaris XLS 1.5 5P",
     year: 2022,
     km: 28000,
-    priceARS: 21800000,
-    priceFormatted: "$ 21.800.000",
     body: "Hatchback",
     transmission: "Automática CVT",
     fuel: "Nafta",
@@ -35,8 +33,6 @@ const VEHICLES = [
     model: "Ioniq 1.6 Hybrid Plus",
     year: 2021,
     km: 39500,
-    priceARS: 27500000,
-    priceFormatted: "$ 27.500.000",
     body: "Sedán",
     transmission: "Automática DCT 6 Vel",
     fuel: "Híbrido",
@@ -53,8 +49,6 @@ const VEHICLES = [
     model: "Amarok Highline 2.0 TDI 4x4",
     year: 2020,
     km: 62000,
-    priceARS: 34900000,
-    priceFormatted: "$ 34.900.000",
     body: "Pick-Up",
     transmission: "Automática ZF 8 Vel",
     fuel: "Diésel",
@@ -71,8 +65,6 @@ const VEHICLES = [
     model: "Ka 1.5 SE 5P",
     year: 2019,
     km: 48000,
-    priceARS: 14200000,
-    priceFormatted: "$ 14.200.000",
     body: "Hatchback",
     transmission: "Manual 5 Vel",
     fuel: "Nafta",
@@ -89,8 +81,6 @@ const VEHICLES = [
     model: "Ka Freestyle 1.5 Cross",
     year: 2020,
     km: 41000,
-    priceARS: 16500000,
-    priceFormatted: "$ 16.500.000",
     body: "Crossover",
     transmission: "Manual 5 Vel",
     fuel: "Nafta",
@@ -107,8 +97,6 @@ const VEHICLES = [
     model: "Yaris S 1.5 CVT Hatchback",
     year: 2023,
     km: 14000,
-    priceARS: 23900000,
-    priceFormatted: "$ 23.900.000",
     body: "Hatchback",
     transmission: "Automática CVT 7 Vel",
     fuel: "Nafta",
@@ -125,8 +113,6 @@ const VEHICLES = [
     model: "Amarok Comfortline 4x2",
     year: 2021,
     km: 51000,
-    priceARS: 30800000,
-    priceFormatted: "$ 30.800.000",
     body: "Pick-Up",
     transmission: "Manual 6 Vel",
     fuel: "Diésel",
@@ -143,8 +129,6 @@ const VEHICLES = [
     model: "Ioniq Tech Hybrid Limited",
     year: 2022,
     km: 24000,
-    priceARS: 29400000,
-    priceFormatted: "$ 29.400.000",
     body: "Sedán",
     transmission: "Automática DCT 6 Vel",
     fuel: "Híbrido",
@@ -162,8 +146,6 @@ const VEHICLES = [
     model: "Ka SEL 1.5 5P",
     year: 2020,
     km: 37000,
-    priceARS: 15600000,
-    priceFormatted: "$ 15.600.000",
     body: "Hatchback",
     transmission: "Manual 5 Vel",
     fuel: "Nafta",
@@ -180,8 +162,6 @@ const VEHICLES = [
     model: "Ka Freestyle Automático",
     year: 2021,
     km: 32000,
-    priceARS: 17800000,
-    priceFormatted: "$ 17.800.000",
     body: "Crossover",
     transmission: "Automática 6 Vel",
     fuel: "Nafta",
@@ -198,8 +178,6 @@ const VEHICLES = [
     model: "Yaris XS 1.5 6MT",
     year: 2021,
     km: 43000,
-    priceARS: 19500000,
-    priceFormatted: "$ 19.500.000",
     body: "Hatchback",
     transmission: "Manual 6 Vel",
     fuel: "Nafta",
@@ -216,8 +194,6 @@ const VEHICLES = [
     model: "Amarok Highline V6 4Motion",
     year: 2022,
     km: 36000,
-    priceARS: 43500000,
-    priceFormatted: "$ 43.500.000",
     body: "Pick-Up",
     transmission: "Automática ZF 8 Vel",
     fuel: "Diésel",
@@ -273,13 +249,12 @@ let filterState = {
   brand: "all",
   body: "all",
   year: "all",
-  priceRange: "all",
   sort: "featured"
 };
 
 // Generate WhatsApp consultation URL for a vehicle
 function getWhatsAppUrl(vehicle) {
-  const msg = `Hola Budaner Automotores! Me interesa consultar por la unidad: ${vehicle.brand} ${vehicle.model} (${vehicle.year}) con precio ${vehicle.priceFormatted} que vi en su catálogo web. ¿Sigue disponible y cuáles son las opciones de financiación?`;
+  const msg = `Hola Budaner Automotores! Me interesa consultar por la unidad: ${vehicle.brand} ${vehicle.model} (${vehicle.year}) que vi en su catálogo web. ¿Sigue disponible y cuáles son las opciones de financiación?`;
   return `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodeURIComponent(msg)}`;
 }
 
@@ -347,17 +322,8 @@ function createVehicleCard(v) {
           </div>
         </div>
 
-        <!-- Price & CTA Button -->
+        <!-- CTA Button -->
         <div class="pt-2 border-t border-slate-100 mt-auto">
-          <div class="flex items-baseline justify-between mb-2">
-            <div>
-              <span class="text-[9px] sm:text-[11px] font-semibold text-slate-400 block uppercase">Precio</span>
-              <span class="vehicle-card-price text-sm sm:text-lg font-black text-slate-900 tracking-tight">
-                ${v.priceFormatted}
-              </span>
-            </div>
-          </div>
-
           <!-- Botón de WhatsApp: Celeste Oscuro con letras mayúsculas blancas -->
           <a 
             href="${waUrl}" 
@@ -406,18 +372,8 @@ function getFilteredVehicles() {
       const y = parseInt(filterState.year, 10);
       if (v.year !== y) return false;
     }
-
-    // Price Range
-    if (filterState.priceRange !== "all") {
-      if (filterState.priceRange === "under20m" && v.priceARS > 20000000) return false;
-      if (filterState.priceRange === "20m-30m" && (v.priceARS < 20000000 || v.priceARS > 30000000)) return false;
-      if (filterState.priceRange === "over30m" && v.priceARS < 30000000) return false;
-    }
-
     return true;
   }).sort((a, b) => {
-    if (filterState.sort === "price-asc") return a.priceARS - b.priceARS;
-    if (filterState.sort === "price-desc") return b.priceARS - a.priceARS;
     if (filterState.sort === "year-desc") return b.year - a.year;
     if (filterState.sort === "km-asc") return a.km - b.km;
     return a.id - b.id; // default featured
@@ -522,19 +478,6 @@ function openVehicleModal(id) {
 
         <!-- Details -->
         <div class="p-6">
-          <!-- Price Banner -->
-          <div class="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100 mb-6">
-            <div>
-              <span class="text-xs uppercase font-bold text-sky-800">Precio de Contado</span>
-              <div class="text-2xl sm:text-3xl font-black text-[#0284c7]">${v.priceFormatted}</div>
-            </div>
-            <div class="text-right">
-              <span class="inline-block bg-white text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl border border-sky-200 shadow-sm">
-                Entrega Inmediata
-              </span>
-            </div>
-          </div>
-
           <!-- Financiación Highlight Box -->
           <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 mb-6">
             <div class="flex items-center gap-2 mb-1">
@@ -669,7 +612,6 @@ function resetFilters() {
     brand: "all",
     body: "all",
     year: "all",
-    priceRange: "all",
     sort: "featured"
   };
 
@@ -677,14 +619,12 @@ function resetFilters() {
   const brandSelect = document.getElementById("filter-brand");
   const bodySelect = document.getElementById("filter-body");
   const yearSelect = document.getElementById("filter-year");
-  const priceSelect = document.getElementById("filter-price");
   const sortSelect = document.getElementById("sort-select");
 
   if (searchInput) searchInput.value = "";
   if (brandSelect) brandSelect.value = "all";
   if (bodySelect) bodySelect.value = "all";
   if (yearSelect) yearSelect.value = "all";
-  if (priceSelect) priceSelect.value = "all";
   if (sortSelect) sortSelect.value = "featured";
 
   // update quick chips
@@ -747,15 +687,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (yearSelect) {
     yearSelect.addEventListener("change", (e) => {
       filterState.year = e.target.value;
-      currentLimit = 8;
-      renderCatalog();
-    });
-  }
-
-  const priceSelect = document.getElementById("filter-price");
-  if (priceSelect) {
-    priceSelect.addEventListener("change", (e) => {
-      filterState.priceRange = e.target.value;
       currentLimit = 8;
       renderCatalog();
     });

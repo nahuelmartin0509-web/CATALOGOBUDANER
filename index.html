@@ -129,13 +129,13 @@
   </header>
 
   <!-- ========================================== -->
-  <!-- 3. HERO PORTADA USING "BANNER.jpg"         -->
+  <!-- 3. HERO PORTADA USING "BANNER.jpeg"         -->
   <!-- ========================================== -->
   <section class="relative bg-slate-950 overflow-hidden">
     <!-- Image Hero Cover -->
     <div class="relative w-full min-h-[480px] sm:min-h-[580px] lg:min-h-[640px] flex items-center justify-center">
       <img 
-        src="assets/banner.jpg" 
+        src="assets/banner.jpeg" 
         alt="Budaner Automotores Showroom y Portada" 
         class="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.92]"
         fetchpriority="high"
@@ -147,16 +147,6 @@
 
       <!-- Hero Content Container (Inspired by CATALOGO DE REFERENCIA) -->
       <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 sm:py-16 text-center flex flex-col items-center">
-        
-        <!-- Strategic Centered Logo in Hero -->
-        <div class="bg-white/95 backdrop-blur-md px-6 py-3 rounded-2xl shadow-2xl mb-6 inline-flex items-center justify-center border border-white/40">
-          <img 
-            src="assets/logo.png" 
-            alt="Budaner Logo" 
-            class="h-12 sm:h-16 w-auto object-contain"
-          />
-        </div>
-
         <!-- Pill Badge -->
         <div class="inline-flex items-center gap-2 bg-[#0284c7]/90 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full shadow-lg backdrop-blur-md mb-4 uppercase tracking-wider">
           <span>★ Usados Seleccionados & 0KM</span>
@@ -164,12 +154,12 @@
 
         <!-- Hero Headline -->
         <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white font-heading tracking-tight leading-tight sm:leading-tight mb-4 drop-shadow-md">
-          ¡Tu Próximo Auto <span class="text-[#38bdf8]">Te Espera!</span>
+          ¡EL VEHÍCULO QUE BUSCÁS <span class="text-[#38bdf8]">ESTÁ AQUÍ!</span>
         </h1>
 
         <!-- Slogan & Proposition -->
         <p class="text-sm sm:text-lg text-slate-200 max-w-xl mx-auto mb-8 font-medium drop-shadow leading-relaxed">
-          Venta • Permuta • Financiación a tu medida con entrega inmediata en Santiago del Estero.
+          Venta • Consignaciones • Financiación a tu medida con entrega inmediata en Santiago del Estero.
         </p>
 
         <!-- CTA Buttons matching Reference Catalog -->
@@ -335,7 +325,7 @@
       </div>
 
       <!-- Filter Controls Grid (Marca, Carrocería, Año, Precio, Buscador) -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3">
         
         <!-- Search Input -->
         <div class="col-span-2 sm:col-span-1">
@@ -388,17 +378,6 @@
           </select>
         </div>
 
-        <!-- Precio Dropdown -->
-        <div>
-          <label class="block text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Precio (ARS)</label>
-          <select id="filter-price" class="w-full text-xs sm:text-sm py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0284c7]">
-            <option value="all">Cualquier Precio</option>
-            <option value="under20m">Hasta $ 20.000.000</option>
-            <option value="20m-30m">$ 20M - $ 30.000.000</option>
-            <option value="over30m">Más de $ 30.000.000</option>
-          </select>
-        </div>
-
       </div>
 
       <!-- Sorting bar -->
@@ -408,8 +387,6 @@
           <label for="sort-select" class="font-semibold text-slate-600">Ordenar por:</label>
           <select id="sort-select" class="text-xs py-1 px-2 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none font-medium">
             <option value="featured">Destacados</option>
-            <option value="price-asc">Menor Precio</option>
-            <option value="price-desc">Mayor Precio</option>
             <option value="year-desc">Más Nuevos</option>
             <option value="km-asc">Menor Kilometraje</option>
           </select>
