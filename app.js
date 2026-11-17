@@ -230,13 +230,29 @@ function setModalPhoto(i) {
   if (main) main.src = modalVehicle.photos[modalIndex];
   const counter = document.getElementById("modal-photo-counter");
   if (counter) counter.textContent = (modalIndex + 1) + " / " + n;
-  document.querySelectorAll(".modal-thumb").forEach((t, idx) => {
-    t.classList.toggle("ring-2", idx === modalIndex);
-    t.classList.toggle("ring-[#0284c7]", idx === modalIndex);
-    if (idx === modalIndex && t.scrollIntoView) t.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-  });
 }
-function navModal(dir) { setModalPhoto(modalIndex + dir); }
+function navModal(dir, manual) {
+  setModalPhoto(modalIndex + dir);
+  if (manual) startModalAutoplay(); // reinicia la cuenta de 4 s tras interactuar
+}
+
+// Avance automático cada 4 s (se pausa con mouse encima o al tocar)
+let modalTimer = null;
+function stopModalAutoplay() { if (modalTimer) { clearInterval(modalTimer); modalTimer = null; } }
+function startModalAutoplay() {
+  stopModalAutoplay();
+  if (!modalVehicle || modalVehicle.photos.length < 2) return;
+  modalTimer = setInterval(() => navModal(1), 4000);
+}
+function bindModalCarousel() {
+  const wrap = document.getElementById("modal-photo-wrap");
+  if (!wrap) return;
+  wrap.addEventListener("mouseenter", stopModalAutoplay);
+  wrap.addEventListener("mouseleave", startModalAutoplay);
+  wrap.addEventListener("touchstart", stopModalAutoplay, { passive: true });
+  wrap.addEventListener("touchend", () => setTimeout(startModalAutoplay, 6000), { passive: true });
+  startModalAutoplay();
+}
 
 function specBox(label, value) {
   return `<div class="bg-slate-50 p-3 rounded-xl border border-slate-100"><span class="text-[10px] text-slate-400 font-semibold block uppercase">${label}</span><span class="text-xs sm:text-sm font-bold text-slate-800">${esc(value || "—")}</span></div>`;
@@ -254,9 +270,6 @@ function openVehicleModal(id, keepScroll) {
   const photo = v.photos[0]
     ? `<img id="modal-main-photo" src="${esc(v.photos[Math.min(modalIndex, v.photos.length - 1)])}" alt="${esc(vTitle(v))}" class="w-full h-full object-contain select-none" draggable="false"/>`
     : PLACEHOLDER;
-  const thumbs = v.photos.length > 1
-    ? `<div class="flex gap-2 overflow-x-auto no-scrollbar px-4 pt-3 bg-white">${v.photos.map((p, i) => `<img src="${esc(p)}" onclick="setModalPhoto(${i})" class="modal-thumb w-16 h-12 sm:w-20 sm:h-14 object-cover rounded-lg cursor-pointer shrink-0 ${i === modalIndex ? "ring-2 ring-[#0284c7]" : ""}" alt="Foto ${i + 1}" loading="lazy"/>`).join("")}</div>`
-    : "";
 
   const financing = v.status === "apto" ? `
     <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 mb-5">
@@ -281,15 +294,14 @@ function openVehicleModal(id, keepScroll) {
           ${photo}
           <div class="absolute top-3 left-3 z-10 pointer-events-none">${badgeHtml(v, true)}</div>
           ${v.photos.length > 1 ? `
-          <button onclick="navModal(-1)" class="modal-arrow absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-slate-900 shadow-lg flex items-center justify-center active:scale-95 transition" aria-label="Foto anterior">
+          <button onclick="navModal(-1, true)" class="modal-arrow absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-slate-900 shadow-lg flex items-center justify-center active:scale-95 transition" aria-label="Foto anterior">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
           </button>
-          <button onclick="navModal(1)" class="modal-arrow absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-slate-900 shadow-lg flex items-center justify-center active:scale-95 transition" aria-label="Foto siguiente">
+          <button onclick="navModal(1, true)" class="modal-arrow absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-slate-900 shadow-lg flex items-center justify-center active:scale-95 transition" aria-label="Foto siguiente">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
           </button>
           <span id="modal-photo-counter" class="absolute bottom-3 right-3 z-10 bg-slate-900/75 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full pointer-events-none">${Math.min(modalIndex, v.photos.length - 1) + 1} / ${v.photos.length}</span>` : ""}
         </div>
-        ${thumbs}
         <div class="px-4 sm:px-6 pt-4 text-xs sm:text-sm font-semibold text-slate-500">${esc(metaLine)}</div>
         <div class="p-4 sm:p-6">
           ${financing}
@@ -312,9 +324,11 @@ function openVehicleModal(id, keepScroll) {
   modal.classList.remove("hidden");
   modal.classList.add("flex");
   document.body.style.overflow = "hidden";
+  bindModalCarousel();
 }
 
 function closeVehicleModal() {
+  stopModalAutoplay();
   modalVehicle = null;
   const modal = document.getElementById("vehicle-modal");
   modal.classList.add("hidden");
@@ -386,15 +400,15 @@ document.addEventListener("DOMContentLoaded", () => {
   modal.addEventListener("click", (e) => { if (e.target === modal || e.target.id === "modal-vehicle-content") closeVehicleModal(); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeVehicleModal();
-    if (modalVehicle && e.key === "ArrowLeft") navModal(-1);
-    if (modalVehicle && e.key === "ArrowRight") navModal(1);
+    if (modalVehicle && e.key === "ArrowLeft") navModal(-1, true);
+    if (modalVehicle && e.key === "ArrowRight") navModal(1, true);
   });
   let touchX = null;
   modal.addEventListener("touchstart", (e) => { touchX = e.target.closest("#modal-photo-wrap") ? e.touches[0].clientX : null; }, { passive: true });
   modal.addEventListener("touchend", (e) => {
     if (touchX === null) return;
     const dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 40) navModal(dx < 0 ? 1 : -1);
+    if (Math.abs(dx) > 40) navModal(dx < 0 ? 1 : -1, true);
     touchX = null;
   });
 });

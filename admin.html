@@ -88,7 +88,7 @@
 
         <!-- FOTOS -->
         <div>
-          <label class="lbl">Fotos (hasta 8, alta definición con compresión inteligente) — la primera es la portada</label>
+          <label class="lbl">Fotos (hasta 8, 1800 px / calidad 90 %; con muchas fotos se ajusta para entrar en 1 MB) — la primera es la portada</label>
           <input id="photo-input" type="file" accept="image/*" multiple class="block w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[#0284c7] file:text-white file:font-bold" />
           <div id="photo-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3"></div>
         </div>
@@ -124,7 +124,7 @@
     let editingId = null;
     const MAX_PHOTOS = 8;
     const DOC_BUDGET = 880 * 1024;   // caracteres totales de fotos por documento (límite Firestore: 1 MiB)
-    const MAX_PER_PHOTO = 260 * 1024; // tope por foto cuando hay pocas
+    const MAX_PER_PHOTO = 450 * 1024; // tope por foto cuando hay pocas
     let photos = [];              // [{ data: 'data:image/jpeg;base64,...', orig?: File }]
 
     // ---------- Auth ----------
@@ -237,7 +237,7 @@
       for (const f of files) {
         if (photos.length >= MAX_PHOTOS) { msg('Máximo ' + MAX_PHOTOS + ' fotos por vehículo (límite de Firestore).', false); break; }
         if (!f.type.startsWith('image/')) continue;
-        try { photos.push({ data: await compress(f, 150 * 1024), orig: f }); }
+        try { photos.push({ data: await compress(f, 450 * 1024), orig: f }); }
         catch (ex) { msg('No se pudo procesar "' + f.name + '".', false); }
       }
       renderPhotos();
@@ -258,7 +258,7 @@
         ctx.drawImage(bmp, 0, 0, c.width, c.height);
         data = c.toDataURL('image/jpeg', q);
         if (data.length <= budget) break;
-        if (q > 0.7) q -= 0.05; else max = Math.round(max * 0.9);
+        if (q > 0.72) q -= 0.04; else max = Math.round(max * 0.92);
       }
       bmp.close && bmp.close();
       return data;
