@@ -88,7 +88,7 @@
 
         <!-- FOTOS -->
         <div>
-          <label class="lbl">Fotos (hasta 6, 1200 px de ancho, alta definición) — la primera es la portada — la primera es la portada</label>
+          <label class="lbl">Fotos (hasta 6, ~150 KB c/u, 1000–1200 px) — la primera es la portada — la primera es la portada</label>
           <input id="photo-input" type="file" accept="image/*" multiple class="block w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[#0284c7] file:text-white file:font-bold" />
           <div id="photo-status" class="mt-3 text-xs font-semibold rounded-xl px-3 py-2 bg-slate-50 text-slate-500 border border-slate-200">Sin fotos. Podés cargar hasta 6.</div>
           <div id="photo-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3"></div>
@@ -124,8 +124,11 @@
     let unsubs = [];
     let editingId = null;
     const MAX_PHOTOS = 6;
-    const DOC_LIMIT = 900 * 1024;   // peso máximo del documento (Firestore admite 1 MiB; dejamos margen)
-    const COVER_MAX = 1200, COVER_Q = 0.85, SEC_Q = 0.82;
+    const DOC_LIMIT = 950 * 1024;   // tope del documento completo (Firestore admite 1 MiB)
+    // Peso objetivo POR FOTO tal como se guarda en Firestore (data URL base64): 140-155 KB.
+    // 6 x 155 KB = 930 KB + texto (~8 KB) < 950 KB.
+    const TARGET_MIN = 140 * 1024, TARGET_MAX = 155 * 1024;
+    const START_DIM = 1200, MIN_DIM = 800, Q_MAX = 0.92, Q_FLOOR = 0.5;
     let photos = [];              // [{ data: dataURL, src: File|dataURL, q, max }]
 
     // ---------- Auth ----------
@@ -235,7 +238,7 @@
       if (!n) return setStatus('Sin fotos. Podés cargar hasta ' + MAX_PHOTOS + '.', 'idle');
       const total = photosBytes() + OVERHEAD;
       if (total <= DOC_LIMIT) setStatus('✓ ' + n + '/' + MAX_PHOTOS + ' fotos • ' + kb(total) + ' KB de ' + kb(DOC_LIMIT) + ' KB • Peso apto para guardar', 'ok');
-      else setStatus('⚠ ' + n + '/' + MAX_PHOTOS + ' fotos • ' + kb(total) + ' KB supera ' + kb(DOC_LIMIT) + ' KB. Al guardar se re-comprimirán las fotos secundarias (la portada conserva la máxima nitidez).', 'warn');
+      else setStatus('⚠ ' + n + '/' + MAX_PHOTOS + ' fotos • ' + kb(total) + ' KB supera ' + kb(DOC_LIMIT) + ' KB. Al guardar se ajustarán las fotos (primero las secundarias).', 'warn');
     }
 
     function renderPhotos() {
@@ -261,9 +264,7 @@
       for (let i = 0; i < take.length; i++) {
         setStatus('⏳ Procesando foto ' + (i + 1) + ' de ' + take.length + '...', 'busy');
         try {
-          const isCover = photos.length === 0;
-          const q = isCover ? COVER_Q : SEC_Q;
-          photos.push({ data: await encode(take[i], COVER_MAX, q), src: take[i], q, max: COVER_MAX });
+          photos.push({ data: await encodeTarget(take[i], TARGET_MIN, TARGET_MAX), src: take[i] });
         } catch (ex) { msg('No se pudo procesar "' + take[i].name + '".', false); }
       }
       renderPhotos();
@@ -284,25 +285,55 @@
       return c.toDataURL('image/jpeg', q);
     }
 
-    async function reencode(p, max, q) {
-      const d = await encode(p.src, max, q);
-      if (d.length < p.data.length) { p.data = d; p.q = q; p.max = max; }
+    // Dibuja la imagen a 'max' px y busca (búsqueda binaria) la calidad JPEG cuyo peso final
+    // (data URL) caiga entre minB y maxB. Si ni con calidad ${Q_FLOOR} entra, achica la resolución
+    // de a poco (hasta MIN_DIM px) y repite. Devuelve siempre un resultado <= maxB.
+    async function encodeTarget(src, minB, maxB) {
+      const blob = typeof src === 'string' ? await (await fetch(src)).blob() : src;
+      const bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+      let dim = START_DIM, best = null;
+      try {
+        while (true) {
+          const s = Math.min(1, dim / Math.max(bmp.width, bmp.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+          const ctx = c.getContext('2d');
+          ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(bmp, 0, 0, c.width, c.height);
+
+          let lo = Q_FLOOR, hi = Q_MAX, fit = null;
+          let top = c.toDataURL('image/jpeg', Q_MAX);
+          if (top.length <= maxB) return top;            // ya entra a máxima calidad (imagen chica/simple)
+          for (let i = 0; i < 8; i++) {
+            const q = (lo + hi) / 2;
+            const d = c.toDataURL('image/jpeg', q);
+            if (d.length <= maxB) { fit = d; lo = q; if (d.length >= minB) break; } else { hi = q; }
+          }
+          if (fit) return fit;
+          best = c.toDataURL('image/jpeg', Q_FLOOR);
+          if (best.length <= maxB) return best;
+          if (dim <= MIN_DIM) return best;               // último recurso (muy raro)
+          dim = Math.max(MIN_DIM, Math.round(dim * 0.9));
+        }
+      } finally { bmp.close && bmp.close(); }
     }
 
-    // Garantiza peso total <= 900 KB. Primero baja SOLO las fotos secundarias; la portada se toca al final.
+    // Seguro final: si por texto largo el documento supera 950 KB, achica el objetivo por foto
+    // (primero las secundarias, la portada al final).
     async function fitPhotos(extra) {
       const total = () => photosBytes() + extra;
-      const cover = photos[0];
-      if (!cover) return false;
-      if (total() <= DOC_LIMIT) return false;
-      const sec = photos.slice(1);
-      const steps = [[1200, 0.78], [1200, 0.74], [1200, 0.70], [1200, 0.66], [1100, 0.64], [1000, 0.62], [900, 0.60], [800, 0.58]];
-      for (const [m, q] of steps) {
-        for (const p of sec) await reencode(p, m, q);
+      if (!photos.length || total() <= DOC_LIMIT) return false;
+      for (const f of [0.92, 0.85, 0.78, 0.7]) {
+        for (let i = photos.length - 1; i >= 1; i--) {
+          const t = Math.floor(TARGET_MAX * f);
+          if (photos[i].data.length > t) photos[i].data = await encodeTarget(photos[i].src, t * 0.9, t);
+        }
         if (total() <= DOC_LIMIT) return true;
       }
-      for (const q of [0.80, 0.76, 0.72, 0.68]) {
-        await reencode(cover, COVER_MAX, q);
+      for (const f of [0.92, 0.85, 0.78]) {
+        const t = Math.floor(TARGET_MAX * f);
+        if (photos[0].data.length > t) photos[0].data = await encodeTarget(photos[0].src, t * 0.9, t);
         if (total() <= DOC_LIMIT) return true;
       }
       throw new Error('Las fotos no entran en el límite de ' + kb(DOC_LIMIT) + ' KB. Quitá alguna.');
@@ -339,7 +370,7 @@
           renderPhotos();
           const total = photosBytes() + textBytes;
           if (total > DOC_LIMIT) throw new Error('El documento pesa ' + kb(total) + ' KB y supera el límite.');
-          setStatus('✓ ' + n + ' fotos listas • ' + kb(total) + ' KB de ' + kb(DOC_LIMIT) + ' KB' + (adjusted ? ' (se re-comprimieron las fotos secundarias; portada intacta)' : '') + ' • Peso apto, guardando...', 'ok');
+          setStatus('✓ ' + n + ' fotos listas • ' + kb(total) + ' KB de ' + kb(DOC_LIMIT) + ' KB' + (adjusted ? ' (se ajustaron las fotos para entrar en el límite)' : '') + ' • Peso apto, guardando...', 'ok');
         }
         pub.imagenes = photos.map((p) => p.data);
 
