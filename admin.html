@@ -88,7 +88,7 @@
 
         <!-- FOTOS -->
         <div>
-          <label class="lbl">Fotos (hasta 8, se comprimen a ~70 KB) — la primera es la portada</label>
+          <label class="lbl">Fotos (hasta 8, alta definición con compresión inteligente) — la primera es la portada</label>
           <input id="photo-input" type="file" accept="image/*" multiple class="block w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[#0284c7] file:text-white file:font-bold" />
           <div id="photo-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3"></div>
         </div>
@@ -122,9 +122,10 @@
     let priv = {};                // id -> {price,currency}
     let unsubs = [];
     let editingId = null;
-    const MAX_PHOTOS = 8;         // ~70 KB c/u => ~560 KB, bajo el límite de 1 MB por documento
-    const TARGET_BYTES = 70 * 1024;
-    let photos = [];              // strings data:image/jpeg;base64,...
+    const MAX_PHOTOS = 8;
+    const DOC_BUDGET = 880 * 1024;   // caracteres totales de fotos por documento (límite Firestore: 1 MiB)
+    const MAX_PER_PHOTO = 260 * 1024; // tope por foto cuando hay pocas
+    let photos = [];              // [{ data: 'data:image/jpeg;base64,...', orig?: File }]
 
     // ---------- Auth ----------
     $('login-form').addEventListener('submit', async (e) => {
@@ -210,7 +211,7 @@
       const p = priv[id] || {};
       form.elements.price.value = p.price != null ? p.price : '';
       form.elements.currency.value = p.currency || 'ARS';
-      photos = (v.imagenes || v.photos || []).slice();
+      photos = (v.imagenes || v.photos || []).map((data) => ({ data }));
       renderPhotos();
       $('form-title').textContent = 'Editando: ' + [v.brand, v.model].join(' ');
       $('cancel-edit').classList.remove('hidden');
@@ -221,7 +222,7 @@
     function renderPhotos() {
       $('photo-grid').innerHTML = photos.map((p, i) => `
         <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border ${i === 0 ? 'border-[#0284c7] border-2' : 'border-slate-200'}">
-          <img src="${esc(p)}" class="w-full h-full object-cover">
+          <img src="${esc(p.data)}" class="w-full h-full object-cover">
           ${i === 0 ? '<span class="absolute top-1 left-1 bg-[#0284c7] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">PORTADA</span>' : `<button type="button" data-main="${i}" class="absolute bottom-1 left-1 bg-white/90 text-[9px] font-bold px-1.5 py-0.5 rounded">★ Portada</button>`}
           <button type="button" data-rm="${i}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-slate-900/80 text-white text-xs font-bold">✕</button>
         </div>`).join('');
@@ -236,26 +237,41 @@
       for (const f of files) {
         if (photos.length >= MAX_PHOTOS) { msg('Máximo ' + MAX_PHOTOS + ' fotos por vehículo (límite de Firestore).', false); break; }
         if (!f.type.startsWith('image/')) continue;
-        try { photos.push(await compress(f)); }
+        try { photos.push({ data: await compress(f, 150 * 1024), orig: f }); }
         catch (ex) { msg('No se pudo procesar "' + f.name + '".', false); }
       }
       renderPhotos();
     });
 
-    // Compresión adaptativa: apunta a ~70 KB (JPEG) y devuelve un data URL
-    async function compress(file) {
+    // Compresión adaptativa de alta calidad: arranca en 1800 px / calidad 0.90 y solo
+    // baja lo necesario para entrar en el presupuesto (caracteres del data URL).
+    async function compress(file, budget) {
       const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-      let max = 1100, q = 0.75, blob;
-      for (let i = 0; i < 8; i++) {
+      let max = 1800, q = 0.9, data = '';
+      for (let i = 0; i < 16; i++) {
         const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
         const c = document.createElement('canvas');
         c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
-        c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-        blob = await new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('blob'))), 'image/jpeg', q));
-        if (blob.size <= TARGET_BYTES) break;
-        if (q > 0.5) q -= 0.08; else max = Math.round(max * 0.85);
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(bmp, 0, 0, c.width, c.height);
+        data = c.toDataURL('image/jpeg', q);
+        if (data.length <= budget) break;
+        if (q > 0.7) q -= 0.05; else max = Math.round(max * 0.9);
       }
-      return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+      bmp.close && bmp.close();
+      return data;
+    }
+
+    // Reparte el presupuesto del documento: pocas fotos => más calidad por foto
+    async function fitPhotos() {
+      const fresh = photos.filter((p) => p.orig);
+      if (!fresh.length) return;
+      const kept = photos.filter((p) => !p.orig).reduce((n, p) => n + p.data.length, 0);
+      const per = Math.min(MAX_PER_PHOTO, Math.floor((DOC_BUDGET - kept) / fresh.length));
+      if (per < 40 * 1024) throw new Error('Demasiadas fotos para un documento. Quitá alguna.');
+      for (const p of fresh) p.data = await compress(p.orig, per);
     }
 
     // ---------- Guardar ----------
@@ -268,7 +284,9 @@
         const ref = isNew ? db.collection('vehicles').doc() : db.collection('vehicles').doc(editingId);
         const id = ref.id;
 
-        const total = photos.reduce((n, p) => n + p.length, 0);
+        btn.textContent = 'Optimizando fotos...';
+        await fitPhotos();
+        const total = photos.reduce((n, p) => n + p.data.length, 0);
         if (total > 850 * 1024) throw new Error('Las fotos pesan demasiado para un documento de Firestore. Quitá alguna.');
 
         const pub = {
@@ -277,7 +295,7 @@
           engine: f.engine.value.trim(), transmission: f.transmission.value, fuel: f.fuel.value,
           body: f.body.value, status: f.status.value,
           features: f.features.value.split('\n').map((x) => x.trim()).filter(Boolean),
-          imagenes: photos,
+          imagenes: photos.map((p) => p.data),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         if (isNew) pub.createdAt = firebase.firestore.FieldValue.serverTimestamp();
