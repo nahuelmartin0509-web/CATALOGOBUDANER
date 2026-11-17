@@ -88,8 +88,9 @@
 
         <!-- FOTOS -->
         <div>
-          <label class="lbl">Fotos (hasta 8, 1800 px / calidad 90 %; con muchas fotos se ajusta para entrar en 1 MB) — la primera es la portada</label>
+          <label class="lbl">Fotos (hasta 6, 1200 px de ancho, alta definición) — la primera es la portada — la primera es la portada</label>
           <input id="photo-input" type="file" accept="image/*" multiple class="block w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-[#0284c7] file:text-white file:font-bold" />
+          <div id="photo-status" class="mt-3 text-xs font-semibold rounded-xl px-3 py-2 bg-slate-50 text-slate-500 border border-slate-200">Sin fotos. Podés cargar hasta 6.</div>
           <div id="photo-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3"></div>
         </div>
 
@@ -122,10 +123,10 @@
     let priv = {};                // id -> {price,currency}
     let unsubs = [];
     let editingId = null;
-    const MAX_PHOTOS = 8;
-    const DOC_BUDGET = 880 * 1024;   // caracteres totales de fotos por documento (límite Firestore: 1 MiB)
-    const MAX_PER_PHOTO = 450 * 1024; // tope por foto cuando hay pocas
-    let photos = [];              // [{ data: 'data:image/jpeg;base64,...', orig?: File }]
+    const MAX_PHOTOS = 6;
+    const DOC_LIMIT = 900 * 1024;   // peso máximo del documento (Firestore admite 1 MiB; dejamos margen)
+    const COVER_MAX = 1200, COVER_Q = 0.85, SEC_Q = 0.82;
+    let photos = [];              // [{ data: dataURL, src: File|dataURL, q, max }]
 
     // ---------- Auth ----------
     $('login-form').addEventListener('submit', async (e) => {
@@ -211,7 +212,7 @@
       const p = priv[id] || {};
       form.elements.price.value = p.price != null ? p.price : '';
       form.elements.currency.value = p.currency || 'ARS';
-      photos = (v.imagenes || v.photos || []).map((data) => ({ data }));
+      photos = (v.imagenes || v.photos || []).slice(0, MAX_PHOTOS).map((data) => ({ data, src: data, q: 0, max: 0 }));
       renderPhotos();
       $('form-title').textContent = 'Editando: ' + [v.brand, v.model].join(' ');
       $('cancel-edit').classList.remove('hidden');
@@ -219,13 +220,33 @@
     }
 
     // ---------- Fotos ----------
+    const OVERHEAD = 6 * 1024; // texto del vehículo + metadatos (estimado)
+    const kb = (n) => Math.round(n / 1024);
+    const photosBytes = () => photos.reduce((n, p) => n + p.data.length, 0);
+
+    function setStatus(html, tone) {
+      const el = $('photo-status');
+      const tones = { ok: 'bg-emerald-50 text-emerald-700 border-emerald-200', warn: 'bg-amber-50 text-amber-800 border-amber-200', busy: 'bg-sky-50 text-sky-700 border-sky-200', idle: 'bg-slate-50 text-slate-500 border-slate-200' };
+      el.className = 'mt-3 text-xs font-semibold rounded-xl px-3 py-2 border ' + tones[tone || 'idle'];
+      el.innerHTML = html;
+    }
+    function updateStatus() {
+      const n = photos.length;
+      if (!n) return setStatus('Sin fotos. Podés cargar hasta ' + MAX_PHOTOS + '.', 'idle');
+      const total = photosBytes() + OVERHEAD;
+      if (total <= DOC_LIMIT) setStatus('✓ ' + n + '/' + MAX_PHOTOS + ' fotos • ' + kb(total) + ' KB de ' + kb(DOC_LIMIT) + ' KB • Peso apto para guardar', 'ok');
+      else setStatus('⚠ ' + n + '/' + MAX_PHOTOS + ' fotos • ' + kb(total) + ' KB supera ' + kb(DOC_LIMIT) + ' KB. Al guardar se re-comprimirán las fotos secundarias (la portada conserva la máxima nitidez).', 'warn');
+    }
+
     function renderPhotos() {
       $('photo-grid').innerHTML = photos.map((p, i) => `
         <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border ${i === 0 ? 'border-[#0284c7] border-2' : 'border-slate-200'}">
           <img src="${esc(p.data)}" class="w-full h-full object-cover">
           ${i === 0 ? '<span class="absolute top-1 left-1 bg-[#0284c7] text-white text-[9px] font-bold px-1.5 py-0.5 rounded">PORTADA</span>' : `<button type="button" data-main="${i}" class="absolute bottom-1 left-1 bg-white/90 text-[9px] font-bold px-1.5 py-0.5 rounded">★ Portada</button>`}
+          <span class="absolute bottom-1 right-1 bg-slate-900/75 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded">${kb(p.data.length)} KB</span>
           <button type="button" data-rm="${i}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-slate-900/80 text-white text-xs font-bold">✕</button>
         </div>`).join('');
+      updateStatus();
     }
     $('photo-grid').addEventListener('click', (e) => {
       const rm = e.target.closest('[data-rm]'), mn = e.target.closest('[data-main]');
@@ -233,45 +254,58 @@
       if (mn) { const [p] = photos.splice(+mn.dataset.main, 1); photos.unshift(p); renderPhotos(); }
     });
     $('photo-input').addEventListener('change', async (e) => {
-      const files = Array.from(e.target.files); e.target.value = '';
-      for (const f of files) {
-        if (photos.length >= MAX_PHOTOS) { msg('Máximo ' + MAX_PHOTOS + ' fotos por vehículo (límite de Firestore).', false); break; }
-        if (!f.type.startsWith('image/')) continue;
-        try { photos.push({ data: await compress(f, 450 * 1024), orig: f }); }
-        catch (ex) { msg('No se pudo procesar "' + f.name + '".', false); }
+      const files = Array.from(e.target.files).filter((f) => f.type.startsWith('image/')); e.target.value = '';
+      const room = MAX_PHOTOS - photos.length;
+      if (files.length > room) msg('Máximo ' + MAX_PHOTOS + ' fotos por vehículo. Se cargarán solo ' + Math.max(room, 0) + ' más.', false);
+      const take = files.slice(0, Math.max(room, 0));
+      for (let i = 0; i < take.length; i++) {
+        setStatus('⏳ Procesando foto ' + (i + 1) + ' de ' + take.length + '...', 'busy');
+        try {
+          const isCover = photos.length === 0;
+          const q = isCover ? COVER_Q : SEC_Q;
+          photos.push({ data: await encode(take[i], COVER_MAX, q), src: take[i], q, max: COVER_MAX });
+        } catch (ex) { msg('No se pudo procesar "' + take[i].name + '".', false); }
       }
       renderPhotos();
     });
 
-    // Compresión adaptativa de alta calidad: arranca en 1800 px / calidad 0.90 y solo
-    // baja lo necesario para entrar en el presupuesto (caracteres del data URL).
-    async function compress(file, budget) {
-      const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-      let max = 1800, q = 0.9, data = '';
-      for (let i = 0; i < 16; i++) {
-        const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
-        const c = document.createElement('canvas');
-        c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
-        const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
-        ctx.drawImage(bmp, 0, 0, c.width, c.height);
-        data = c.toDataURL('image/jpeg', q);
-        if (data.length <= budget) break;
-        if (q > 0.72) q -= 0.04; else max = Math.round(max * 0.92);
-      }
+    // Codifica a JPEG (ancho/alto máx. 'max' px, calidad 'q'); src = File o data URL
+    async function encode(src, max, q) {
+      const blob = typeof src === 'string' ? await (await fetch(src)).blob() : src;
+      const bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+      const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(bmp, 0, 0, c.width, c.height);
       bmp.close && bmp.close();
-      return data;
+      return c.toDataURL('image/jpeg', q);
     }
 
-    // Reparte el presupuesto del documento: pocas fotos => más calidad por foto
-    async function fitPhotos() {
-      const fresh = photos.filter((p) => p.orig);
-      if (!fresh.length) return;
-      const kept = photos.filter((p) => !p.orig).reduce((n, p) => n + p.data.length, 0);
-      const per = Math.min(MAX_PER_PHOTO, Math.floor((DOC_BUDGET - kept) / fresh.length));
-      if (per < 40 * 1024) throw new Error('Demasiadas fotos para un documento. Quitá alguna.');
-      for (const p of fresh) p.data = await compress(p.orig, per);
+    async function reencode(p, max, q) {
+      const d = await encode(p.src, max, q);
+      if (d.length < p.data.length) { p.data = d; p.q = q; p.max = max; }
+    }
+
+    // Garantiza peso total <= 900 KB. Primero baja SOLO las fotos secundarias; la portada se toca al final.
+    async function fitPhotos(extra) {
+      const total = () => photosBytes() + extra;
+      const cover = photos[0];
+      if (!cover) return false;
+      if (total() <= DOC_LIMIT) return false;
+      const sec = photos.slice(1);
+      const steps = [[1200, 0.78], [1200, 0.74], [1200, 0.70], [1200, 0.66], [1100, 0.64], [1000, 0.62], [900, 0.60], [800, 0.58]];
+      for (const [m, q] of steps) {
+        for (const p of sec) await reencode(p, m, q);
+        if (total() <= DOC_LIMIT) return true;
+      }
+      for (const q of [0.80, 0.76, 0.72, 0.68]) {
+        await reencode(cover, COVER_MAX, q);
+        if (total() <= DOC_LIMIT) return true;
+      }
+      throw new Error('Las fotos no entran en el límite de ' + kb(DOC_LIMIT) + ' KB. Quitá alguna.');
     }
 
     // ---------- Guardar ----------
@@ -284,21 +318,30 @@
         const ref = isNew ? db.collection('vehicles').doc() : db.collection('vehicles').doc(editingId);
         const id = ref.id;
 
-        btn.textContent = 'Optimizando fotos...';
-        await fitPhotos();
-        const total = photos.reduce((n, p) => n + p.data.length, 0);
-        if (total > 850 * 1024) throw new Error('Las fotos pesan demasiado para un documento de Firestore. Quitá alguna.');
-
         const pub = {
           brand: f.brand.value.trim(), model: f.model.value.trim(), version: f.version.value.trim(),
           year: Number(f.year.value), km: Number(f.km.value), color: f.color.value.trim(),
           engine: f.engine.value.trim(), transmission: f.transmission.value, fuel: f.fuel.value,
           body: f.body.value, status: f.status.value,
           features: f.features.value.split('\n').map((x) => x.trim()).filter(Boolean),
-          imagenes: photos.map((p) => p.data),
+          imagenes: [],
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         if (isNew) pub.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+
+        // Procesar y validar el peso antes de guardar
+        const n = photos.length;
+        const textBytes = JSON.stringify({ ...pub, updatedAt: 0, createdAt: 0 }).length + 2048;
+        if (n) {
+          btn.textContent = 'Procesando fotos...';
+          setStatus('⏳ Procesando las ' + n + ' fotos y verificando el peso...', 'busy');
+          const adjusted = await fitPhotos(textBytes);
+          renderPhotos();
+          const total = photosBytes() + textBytes;
+          if (total > DOC_LIMIT) throw new Error('El documento pesa ' + kb(total) + ' KB y supera el límite.');
+          setStatus('✓ ' + n + ' fotos listas • ' + kb(total) + ' KB de ' + kb(DOC_LIMIT) + ' KB' + (adjusted ? ' (se re-comprimieron las fotos secundarias; portada intacta)' : '') + ' • Peso apto, guardando...', 'ok');
+        }
+        pub.imagenes = photos.map((p) => p.data);
 
         const batch = db.batch();
         batch.set(ref, pub, { merge: true });
