@@ -86,6 +86,7 @@
       <!-- Quick Nav Links (Desktop) -->
       <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-700">
         <a href="#catalogo-section" class="hover:text-[#0284c7] transition-colors">Catálogo</a>
+        <a href="#ultimas-entregas-section" class="hover:text-[#0284c7] transition-colors">Entregas</a>
         <a href="#financiacion-section" class="hover:text-[#0284c7] transition-colors">Financiación</a>
         <a href="#reviews-section" class="hover:text-[#0284c7] transition-colors">Opiniones</a>
         <a href="#ubicacion-section" class="hover:text-[#0284c7] transition-colors">Ubicación</a>
@@ -395,6 +396,45 @@
   </main>
 
   <!-- ========================================== -->
+  <!-- 6. SECCIÓN ÚLTIMAS ENTREGAS               -->
+  <!-- ========================================== -->
+  <section id="ultimas-entregas-section" class="py-12 sm:py-16 bg-slate-100 border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6">
+      
+      <!-- Encabezado & Frase Inspiracional / Confianza -->
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+        <span class="inline-flex items-center gap-1.5 bg-[#0284c7]/10 text-[#0284c7] text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider mb-2.5 border border-[#0284c7]/20">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Sueños Cumplidos Sobre Ruedas
+        </span>
+        <h2 class="text-2xl sm:text-4xl font-black font-heading text-slate-900 mb-3 tracking-tight">
+          ÚLTIMAS ENTREGAS
+        </h2>
+        <p class="text-xs sm:text-base text-slate-600 leading-relaxed font-medium">
+          Cada llave entregada representa un proyecto alcanzado y una familia que confía en nuestra trayectoria. En <span class="font-bold text-slate-900">BUDANER AUTOMOTORES</span> no solo comercializamos vehículos seleccionados: construimos relaciones basadas en la honestidad, la transparencia y el compromiso de acompañarte en cada kilómetro de tu camino.
+        </p>
+      </div>
+
+      <!-- Grilla de Entregas (En PC 5 en línea, en móvil adaptable) -->
+      <div id="entregas-grid" class="entregas-grid mb-8">
+        <!-- Generado dinámicamente con JavaScript -->
+      </div>
+
+      <!-- Botón VER MÁS Entregas -->
+      <div class="flex justify-center">
+        <button 
+          id="btn-load-more-entregas" 
+          class="group px-7 py-3 rounded-2xl bg-white hover:bg-[#0284c7] text-slate-800 hover:text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-sm hover:shadow-lg border border-slate-200 hover:border-[#0284c7] active:scale-95 transition-all flex items-center gap-2"
+        >
+          <span>VER MÁS</span>
+          <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
   <!-- 7. FINANCIACIÓN & VENTAJAS BUDANER         -->
   <!-- ========================================== -->
   <section id="financiacion-section" class="bg-gradient-to-b from-white to-slate-100 py-12 sm:py-16 border-t border-slate-200">
@@ -700,6 +740,7 @@
           <h4 class="text-xs uppercase font-extrabold text-white tracking-wider mb-3">Navegación</h4>
           <ul class="space-y-2">
             <li><a href="#catalogo-section" class="hover:text-white transition-colors">Catálogo de Unidades</a></li>
+            <li><a href="#ultimas-entregas-section" class="hover:text-white transition-colors">Últimas Entregas</a></li>
             <li><a href="#financiacion-section" class="hover:text-white transition-colors">Planes de Financiación</a></li>
             <li><a href="#reviews-section" class="hover:text-white transition-colors">Opiniones de Clientes</a></li>
             <li><a href="#ubicacion-section" class="hover:text-white transition-colors">Ubicación y Showroom</a></li>

@@ -364,10 +364,130 @@ function resetFilters() {
   renderCatalog();
 }
 
+// ==========================================
+// SECCIÓN ÚLTIMAS ENTREGAS
+// ==========================================
+const ENTREGAS_IMAGES = [
+  "assets/entregas/entrega-1.jpeg",
+  "assets/entregas/entrega-2.jpeg",
+  "assets/entregas/entrega-3.jpeg",
+  "assets/entregas/entrega-4.jpeg",
+  "assets/entregas/entrega-5.jpeg",
+  "assets/entregas/entrega-6.jpeg",
+  "assets/entregas/entrega-7.jpeg",
+  "assets/entregas/entrega-8.jpeg",
+  "assets/entregas/entrega-9.jpeg",
+  "assets/entregas/entrega-10.jpeg",
+  "assets/entregas/entrega-11.jpeg",
+  "assets/entregas/entrega-12.jpeg",
+  "assets/entregas/entrega-13.jpeg",
+  "assets/entregas/entrega-14.jpeg",
+  "assets/entregas/entrega-15.jpeg"
+];
+
+let entregasExpanded = false;
+
+function getEntregasInitialLimit() {
+  // Mobile (< 1024px): 9 fotos en primera plana
+  // Desktop (>= 1024px): 10 fotos (2 filas de 5) en primera plana
+  return window.innerWidth >= 1024 ? 10 : 9;
+}
+
+function renderEntregas() {
+  const container = document.getElementById("entregas-grid");
+  const btn = document.getElementById("btn-load-more-entregas");
+  if (!container || !btn) return;
+
+  const initialLimit = getEntregasInitialLimit();
+  const visible = entregasExpanded ? ENTREGAS_IMAGES : ENTREGAS_IMAGES.slice(0, initialLimit);
+
+  container.innerHTML = visible.map((imgSrc, index) => `
+    <div class="entrega-card cursor-pointer group" onclick="openEntregaPreview('${imgSrc}')">
+      <img 
+        src="${imgSrc}" 
+        alt="Entrega Budaner Automotores ${index + 1}" 
+        loading="lazy" 
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5 sm:p-3">
+        <span class="text-white text-[10px] sm:text-xs font-bold flex items-center gap-1 drop-shadow">
+          <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Entrega Oficial
+        </span>
+      </div>
+    </div>
+  `).join("");
+
+  if (entregasExpanded) {
+    btn.innerHTML = `
+      <span>Ver Menos</span>
+      <svg class="w-4 h-4 rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    `;
+  } else {
+    const hiddenCount = ENTREGAS_IMAGES.length - initialLimit;
+    btn.innerHTML = `
+      <span>VER MÁS (${hiddenCount})</span>
+      <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    `;
+  }
+}
+
+function toggleEntregas() {
+  entregasExpanded = !entregasExpanded;
+  renderEntregas();
+  if (!entregasExpanded) {
+    const sec = document.getElementById("ultimas-entregas-section");
+    if (sec) sec.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+// Modal vista previa imagen completa de entregas
+function openEntregaPreview(src) {
+  const modal = document.getElementById("vehicle-modal");
+  const content = document.getElementById("modal-vehicle-content");
+  if (!modal || !content) return;
+
+  content.innerHTML = `
+    <div class="relative bg-slate-950 rounded-3xl overflow-hidden shadow-2xl max-w-3xl w-full mx-2 sm:mx-4 max-h-[90vh] flex flex-col items-center p-3 sm:p-4">
+      <button onclick="closeVehicleModal()" class="absolute top-4 right-4 z-20 bg-slate-900/80 hover:bg-slate-800 text-white rounded-full p-2.5 transition-all shadow-lg" aria-label="Cerrar">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="w-full flex-1 flex items-center justify-center overflow-hidden rounded-2xl bg-black/40">
+        <img src="${src}" alt="Entrega Budaner" class="max-h-[75vh] w-auto max-w-full object-contain rounded-xl select-none" />
+      </div>
+      <div class="w-full pt-3 px-2 flex items-center justify-between text-slate-300 text-xs">
+        <span class="font-bold text-white flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Entrega Oficial Budaner Automotores
+        </span>
+        <span class="text-slate-400">Sueño Cumplido</span>
+      </div>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+  document.body.style.overflow = "hidden";
+}
+
 // ---------- Init ----------
 document.addEventListener("DOMContentLoaded", () => {
   renderCatalog();
   renderGoogleReviews();
+  renderEntregas();
+
+  const entregasBtn = document.getElementById("btn-load-more-entregas");
+  if (entregasBtn) {
+    entregasBtn.addEventListener("click", toggleEntregas);
+  }
+
+  // Actualizar entregas al redimensionar pantalla (cambio de breakpoint móvil/desktop si no está expandido)
+  let resizeTimeout;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      if (!entregasExpanded) renderEntregas();
+    }, 150);
+  });
 
   document.getElementById("btn-load-more").addEventListener("click", toggleLoadMore);
 
