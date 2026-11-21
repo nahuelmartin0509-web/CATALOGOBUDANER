@@ -67,8 +67,9 @@
           <div><label class="lbl">Estado / Financiación</label>
             <select name="status" class="inp">
               <option value="apto">Apto Financiación</option>
+              <option value="senado">Señado</option>
+              <option value="vendido">Vendido</option>
               <option value="sin">Sin etiqueta</option>
-              <option value="reservado">Reservado</option>
             </select></div>
         </fieldset>
 
@@ -165,24 +166,59 @@
         const price = p && p.price != null && p.price !== '' ? p.currency + ' ' + Number(p.price).toLocaleString('es-AR') : 'Sin precio';
         const im = v.imagenes || v.photos || [];
         const ph = im[0] ? `<img src="${esc(im[0])}" class="w-full h-full object-cover">` : '';
-        return `<div class="bg-white rounded-2xl border border-slate-200 p-2.5 flex gap-3 items-center">
-          <div class="w-20 h-16 rounded-xl bg-slate-100 overflow-hidden shrink-0">${ph}</div>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-bold truncate">${esc([v.brand, v.model, v.version].filter(Boolean).join(' '))}</div>
-            <div class="text-[11px] text-slate-500">${esc(v.year)} • ${Number(v.km || 0).toLocaleString('es-AR')} km • ${esc(v.status === 'apto' ? 'Apto fin.' : v.status === 'reservado' ? 'Reservado' : '—')}</div>
-            <div class="text-xs font-extrabold text-amber-700">🔒 ${esc(price)}</div>
+        const st = v.status || 'apto';
+        const stBadge = st === 'senado' || st === 'reservado'
+          ? '<span class="inline-block bg-amber-500 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded uppercase">Señado</span>'
+          : st === 'vendido'
+          ? '<span class="inline-block bg-red-600 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded uppercase">Vendido</span>'
+          : st === 'apto'
+          ? '<span class="inline-block bg-emerald-600 text-white font-bold text-[9px] px-1.5 py-0.5 rounded uppercase">Apto Fin.</span>'
+          : '<span class="text-slate-400 text-[10px]">Sin etiqueta</span>';
+
+        return `<div class="bg-white rounded-2xl border border-slate-200 p-2.5 flex flex-col gap-2">
+          <div class="flex gap-3 items-center">
+            <div class="w-20 h-16 rounded-xl bg-slate-100 overflow-hidden shrink-0">${ph}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 mb-0.5">
+                <span class="text-sm font-bold truncate">${esc([v.brand, v.model, v.version].filter(Boolean).join(' '))}</span>
+                ${stBadge}
+              </div>
+              <div class="text-[11px] text-slate-500">${esc(v.year)} • ${Number(v.km || 0).toLocaleString('es-AR')} km</div>
+              <div class="text-xs font-extrabold text-amber-700">🔒 ${esc(price)}</div>
+            </div>
+            <div class="flex flex-col gap-1 shrink-0">
+              <button data-edit="${esc(v.id)}" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold transition-colors">Editar</button>
+              <button data-del="${esc(v.id)}" class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors">Borrar</button>
+            </div>
           </div>
-          <div class="flex flex-col gap-1">
-            <button data-edit="${esc(v.id)}" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold">Editar</button>
-            <button data-del="${esc(v.id)}" class="px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold">Borrar</button>
-          </div></div>`;
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5 text-[11px]">
+            <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Cambiar Estado:</span>
+            <div class="flex items-center gap-1.5">
+              <button data-status="apto" data-id="${esc(v.id)}" class="px-2 py-0.5 rounded-md font-bold transition-all ${st === 'apto' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700'}" title="Marcar como Apto Financiación">Disponible</button>
+              <button data-status="senado" data-id="${esc(v.id)}" class="px-2.5 py-1 rounded-md font-extrabold transition-all ${st === 'senado' || st === 'reservado' ? 'bg-amber-500 text-white shadow-sm scale-105 ring-2 ring-amber-300' : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'}" title="Marcar como SEÑADO">🟡 SEÑADO</button>
+              <button data-status="vendido" data-id="${esc(v.id)}" class="px-2.5 py-1 rounded-md font-extrabold transition-all ${st === 'vendido' ? 'bg-red-600 text-white shadow-sm scale-105 ring-2 ring-red-300' : 'bg-red-100 hover:bg-red-200 text-red-800 border border-red-300'}" title="Marcar como VENDIDO">🔴 VENDIDO</button>
+            </div>
+          </div>
+        </div>`;
       }).join('') : '<p class="text-sm text-slate-400 text-center py-8">Todavía no cargaste vehículos.</p>';
     }
     $('vehicle-list').addEventListener('click', (e) => {
-      const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+      const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]'), st = e.target.closest('[data-status]');
       if (ed) startEdit(ed.dataset.edit);
       if (del) removeVehicle(del.dataset.del);
+      if (st) setVehicleStatus(st.dataset.id, st.dataset.status);
     });
+
+    async function setVehicleStatus(id, newStatus) {
+      try {
+        await db.collection('vehicles').doc(id).update({
+          status: newStatus,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (ex) {
+        alert('Error al actualizar estado: ' + (ex.message || ex));
+      }
+    }
 
     async function removeVehicle(id) {
       const v = vehicles.find((x) => x.id === id);

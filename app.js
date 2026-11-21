@@ -79,11 +79,21 @@ function getWhatsAppUrl(v) {
 
 function badgeHtml(v, big) {
   const size = big ? "text-xs px-2.5 py-1" : "vehicle-badge-fin text-[10px] sm:text-xs px-2 py-0.5 sm:py-1";
+  
+  if (v.status === "vendido") {
+    return `<span class="inline-flex items-center gap-1 bg-red-600 text-white font-black rounded-full shadow-md uppercase tracking-wider ${size}">
+      <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+      Vendido
+    </span>`;
+  }
+  if (v.status === "senado" || v.status === "reservado") {
+    return `<span class="inline-flex items-center gap-1 bg-amber-500 text-white font-black rounded-full shadow-md uppercase tracking-wider ${size}">
+      <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+      Señado
+    </span>`;
+  }
   if (v.status === "apto") {
     return `<span class="inline-flex items-center gap-1 bg-emerald-600 text-white font-bold rounded-full shadow-md uppercase tracking-wide ${size}"><svg class="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">${CHECK_ICON}</svg>Apto Financiación</span>`;
-  }
-  if (v.status === "reservado") {
-    return `<span class="inline-flex items-center bg-amber-500 text-white font-bold rounded-full shadow-md uppercase tracking-wide ${size}">Reservado</span>`;
   }
   return "";
 }
@@ -282,6 +292,20 @@ function openVehicleModal(id, keepScroll) {
         <span class="text-sm font-bold text-emerald-900">Plan de Financiación BUDANER</span>
       </div>
       <p class="text-xs text-emerald-700 font-medium">Esta unidad es apta para financiación. Consultanos por cuotas y requisitos.</p>
+    </div>` : v.status === "senado" || v.status === "reservado" ? `
+    <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 mb-5 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0">!</div>
+      <div>
+        <h4 class="text-xs sm:text-sm font-bold text-amber-900">Unidad Señada</h4>
+        <p class="text-xs text-amber-700">Este vehículo cuenta con reserva previa. Podés consultar por unidades similares.</p>
+      </div>
+    </div>` : v.status === "vendido" ? `
+    <div class="p-4 bg-red-50 rounded-2xl border border-red-200 mb-5 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-xs shrink-0">✕</div>
+      <div>
+        <h4 class="text-xs sm:text-sm font-bold text-red-900">Unidad Vendida</h4>
+        <p class="text-xs text-red-700">Este vehículo ya fue entregado. Contactanos para buscarte una unidad equivalente.</p>
+      </div>
     </div>` : "";
 
   const features = v.features.length ? `
