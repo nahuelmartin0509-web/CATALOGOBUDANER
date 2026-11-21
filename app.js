@@ -388,9 +388,9 @@ const ENTREGAS_IMAGES = [
 let entregasExpanded = false;
 
 function getEntregasInitialLimit() {
-  // Mobile (< 1024px): 9 fotos en primera plana
+  // Mobile (< 1024px): 4 fotos en primera plana (formato 2x2 limpio)
   // Desktop (>= 1024px): 10 fotos (2 filas de 5) en primera plana
-  return window.innerWidth >= 1024 ? 10 : 9;
+  return window.innerWidth >= 1024 ? 10 : 4;
 }
 
 function renderEntregas() {
