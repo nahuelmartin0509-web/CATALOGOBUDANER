@@ -52,6 +52,10 @@ function normalizeVehicle(id, d) {
 }
 
 function setVehicles(list, error) {
+  // Evitar re-renderizado innecesario si los datos no cambiaron (previene parpadeo)
+  const isSame = VEHICLES.length === list.length && VEHICLES.every((v, i) => v.id === list[i].id && v.updatedAt === list[i].updatedAt);
+  if (loaded && isSame && !error) return;
+
   VEHICLES = list;
   loadError = error || "";
   loaded = true;
