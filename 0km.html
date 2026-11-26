@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Catálogo Oficial 0KM | Budaner Automotores</title>
+  <meta name="description" content="Explorá modelos 0KM de Chevrolet, Peugeot, Fiat, Ford y Nissan en Budaner Automotores. Fichas técnicas, versiones y configurador de colores para Argentina." />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#0095C8',
+              cyan: '#0095C8',
+              dark: '#0077A0',
+              deep: '#0369a1',
+              navy: '#0f172a',
+              sky: '#38bdf8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* Estilos dedicados para la experiencia 0KM estilo estudio */
+    .zero-card {
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .zero-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px -12px rgba(15, 23, 42, 0.12);
+    }
+    .zero-card:hover .car-img {
+      transform: scale(1.06);
+    }
+    .zero-card .view-cta {
+      opacity: 0;
+      transform: translateY(4px);
+      transition: all 0.25s ease-out;
+    }
+    .zero-card:hover .view-cta {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .brand-tab.active {
+      color: #0095C8;
+      border-bottom: 2.5px solid #0095C8;
+      font-weight: 800;
+    }
+    .color-dot.active {
+      transform: scale(1.18);
+      box-shadow: 0 0 0 3px #0095C8, 0 4px 10px rgba(0, 149, 200, 0.3);
+    }
+    .version-tab.active {
+      background-color: #0095C8;
+      color: #ffffff;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-800 antialiased selection:bg-[#0095C8] selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- 1. HEADER & BARRA DE NAVEGACIÓN            -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-40 glass-header border-b border-slate-200/80 shadow-sm bg-white/95 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between">
+      
+      <!-- Logo Budaner -->
+      <a href="index.html" class="flex items-center gap-2 group focus:outline-none">
+        <img 
+          src="assets/logo.png" 
+          alt="Budaner Automotores" 
+          class="h-9 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-200"
+        />
+      </a>
+
+      <!-- Navegación -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-700">
+        <a href="index.html#catalogo-section" class="hover:text-[#0095C8] transition-colors">Usados Seleccionados</a>
+        
+        <!-- Enlace 0KM Activo con Badge BETA -->
+        <a href="0km.html" class="text-[#0095C8] font-bold flex items-center gap-1.5 transition-colors">
+          <span>0KM</span>
+          <span class="bg-[#0095C8]/10 text-[#0095C8] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border border-[#0095C8]/30 tracking-wider">BETA</span>
+        </a>
+
+        <a href="index.html#ultimas-entregas-section" class="hover:text-[#0095C8] transition-colors">Entregas</a>
+        <a href="index.html#financiacion-section" class="hover:text-[#0095C8] transition-colors">Financiación</a>
+        <a href="index.html#ubicacion-section" class="hover:text-[#0095C8] transition-colors">Ubicación</a>
+      </nav>
+
+      <!-- Botón Volver a Usados / WhatsApp -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a 
+          href="index.html" 
+          class="text-xs sm:text-sm font-bold text-slate-600 hover:text-[#0095C8] px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white transition-all flex items-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span class="hidden sm:inline">Catálogo</span> Usados
+        </a>
+
+        <a 
+          href="https://wa.link/7t95da" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+        >
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          <span class="hidden sm:inline">WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. MINI-HERO COMPACTO (ESTILO NISSAN ARG)  -->
+  <!-- ========================================== -->
+  <section class="bg-gradient-to-b from-slate-100 via-white to-[#F8FAFC] border-b border-slate-200/70 py-8 sm:py-12 max-h-[240px] flex items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full text-center">
+      <div class="inline-flex items-center gap-1.5 bg-[#0095C8]/10 text-[#0095C8] text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-2 border border-[#0095C8]/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#0095C8] animate-pulse"></span>
+        Gama Oficial de 0KM
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-black font-heading text-slate-900 tracking-tight">
+        Catálogo Oficial 0KM
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1.5 max-w-md mx-auto">
+        Explorá modelos disponibles, colores y versiones
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 3. BARRA DE FILTRO POR MARCA (TABS)        -->
+  <!-- ========================================== -->
+  <nav class="bg-white border-b border-slate-200 sticky top-[57px] sm:top-[69px] z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center gap-1 sm:gap-4 overflow-x-auto no-scrollbar py-1">
+        <button data-brand="ALL" class="brand-tab active px-4 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 whitespace-nowrap transition-all border-b-2 border-transparent">
+          TODAS LAS MARCAS
+        </button>
+        <button data-brand="CHEVROLET" class="brand-tab px-4 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 whitespace-nowrap transition-all border-b-2 border-transparent">
+          CHEVROLET
+        </button>
+        <button data-brand="PEUGEOT" class="brand-tab px-4 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 whitespace-nowrap transition-all border-b-2 border-transparent">
+          PEUGEOT
+        </button>
+        <button data-brand="FIAT" class="brand-tab px-4 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 whitespace-nowrap transition-all border-b-2 border-transparent">
+          FIAT
+        </button>
+        <button data-brand="FORD" class="brand-tab px-4 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 whitespace-nowrap transition-all border-b-2 border-transparent">
+          FORD
+        </button>
+        <button data-brand="NISSAN" class="brand-tab px-4 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 whitespace-nowrap transition-all border-b-2 border-transparent">
+          NISSAN
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 4. CONTENEDOR PRINCIPAL: VISTA CATÁLOGO    -->
+  <!-- ========================================== -->
+  <main id="catalog-view" class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <!-- Grilla de Vehículos 0KM (Estilo estudio limpio, fondo blanco puro) -->
+    <div id="zero-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <!-- Inyectado por JavaScript -->
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 5. FICHA INTERACTIVA DETALLADA (VISTA AUTO) -->
+  <!-- ========================================== -->
+  <section id="detail-view" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    
+    <!-- Botón Volver -->
+    <div class="mb-6">
+      <button 
+        onclick="closeCarDetail()" 
+        class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-[#0095C8] bg-white px-4 py-2.5 rounded-full border border-slate-200 shadow-xs hover:shadow-sm transition-all"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Volver al catálogo 0KM</span>
+      </button>
+    </div>
+
+    <!-- Título Principal del Modelo en Ficha -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+        <div>
+          <span id="detail-brand-badge" class="text-xs font-black uppercase tracking-widest text-[#0095C8]"></span>
+          <h2 id="detail-model-title" class="text-2xl sm:text-4xl font-black font-heading text-slate-900 mt-0.5"></h2>
+          <p id="detail-type-subtitle" class="text-xs sm:text-sm text-slate-500 font-medium"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            0KM con Garantía Oficial
+          </span>
+        </div>
+      </div>
+
+      <!-- BLOQUE 1: Video Presentación Panorámico 16:9 -->
+      <div class="mt-8">
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-[#0095C8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Video Presentación Oficial
+        </h3>
+        <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-950 shadow-md">
+          <iframe 
+            id="detail-video-iframe" 
+            class="w-full h-full border-0" 
+            src="" 
+            title="Video promocional 0KM"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- BLOQUE 2: Configurador de Color (Estudio 360°) -->
+      <div class="mt-10 pt-10 border-t border-slate-100">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg sm:text-xl font-black text-slate-900 font-heading">
+              Configurador de Color
+            </h3>
+            <p class="text-xs text-slate-500">Seleccioná un tono para visualizar el vehículo en estudio</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Color Activo</span>
+            <span id="color-name-display" class="text-xs sm:text-sm font-black text-[#0095C8] uppercase tracking-wide"></span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-2xl p-4 sm:p-6 border border-slate-100">
+          
+          <!-- Vista Perfil Lateral en Estudio -->
+          <div class="lg:col-span-8 flex flex-col items-center justify-center min-h-[260px] sm:min-h-[380px] bg-gradient-to-b from-white via-white to-slate-50/80 rounded-2xl p-4 relative overflow-hidden">
+            <div id="side-car-container" class="w-full flex items-center justify-center relative">
+              <img 
+                id="detail-side-photo" 
+                src="" 
+                alt="Vista lateral vehículo 0KM" 
+                class="w-full max-h-[340px] object-contain transition-all duration-300 drop-shadow-lg select-none"
+              />
+            </div>
+            
+            <!-- Indicador sutil de interacción -->
+            <div class="mt-3 flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold select-none">
+              <svg class="w-3.5 h-3.5 text-[#0095C8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Vista de estudio 360° • Selección en tiempo real</span>
+            </div>
+          </div>
+
+          <!-- Selector de Colores (Botones circulares) -->
+          <div class="lg:col-span-4 bg-slate-50 rounded-2xl p-5 border border-slate-200/80">
+            <span class="text-xs font-extrabold uppercase text-slate-500 tracking-wider block mb-3">
+              Paleta Oficial de Colores
+            </span>
+            <div id="color-dots-container" class="flex flex-wrap gap-3">
+              <!-- Inyectado por JS -->
+            </div>
+            <p class="text-[11px] text-slate-400 mt-4 leading-relaxed">
+              * Los tonos exhibidos reproducen las pinturas originales homologadas por fábrica para el mercado argentino.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 3: Selector de Versiones y Especificaciones -->
+      <div class="mt-10 pt-10 border-t border-slate-100">
+        <div class="mb-4">
+          <h3 class="text-lg sm:text-xl font-black text-slate-900 font-heading">
+            Versiones y Equipamiento
+          </h3>
+          <p class="text-xs text-slate-500">Compará motorizaciones, cajas y tecnología según tus necesidades</p>
+        </div>
+
+        <!-- Pestañas de Versión -->
+        <div id="version-tabs-container" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-6">
+          <!-- Inyectado por JS -->
+        </div>
+
+        <!-- Ficha Técnica de la Versión Activa -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 mb-6" id="version-specs-grid">
+          <!-- Inyectado por JS -->
+        </div>
+
+        <!-- Lista de Equipamiento Destacado -->
+        <div class="bg-slate-50 rounded-2xl p-5 sm:p-6 border border-slate-200/80 mb-8">
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-[#0095C8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Equipamiento Destacado de Esta Versión
+          </h4>
+          <ul id="version-features-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Inyectado por JS -->
+          </ul>
+        </div>
+
+        <!-- CTA Principal: Consultar por WhatsApp -->
+        <div class="pt-4 border-t border-slate-100 text-center">
+          <a 
+            id="detail-whatsapp-btn" 
+            href="#" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-[#0095C8] hover:bg-[#0077A0] text-white font-extrabold text-sm sm:text-base uppercase tracking-wider shadow-lg hover:shadow-xl active:scale-98 transition-all"
+          >
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            <span>Consultar disponibilidad y financiación 0KM</span>
+          </a>
+          <p class="text-xs text-slate-400 mt-2 font-medium">
+            Respuesta inmediata por asesores comerciales especializados de Budaner Automotores
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 6. MODAL DE ACCESO BETA (PROTECCIÓN LOGIN) -->
+  <!-- ========================================== -->
+  <div 
+    id="beta-auth-modal" 
+    class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300"
+  >
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center relative animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Logo Budaner en Modal -->
+      <img 
+        src="assets/logo.png" 
+        alt="Budaner Automotores" 
+        class="h-14 sm:h-16 w-auto mx-auto object-contain mb-4"
+      />
+
+      <div class="inline-flex items-center gap-1.5 bg-[#0095C8]/10 text-[#0095C8] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2">
+        Acceso Restringido • Modo Beta
+      </div>
+
+      <h2 class="text-lg font-black text-slate-900 font-heading">
+        Catálogo Exclusivo 0KM
+      </h2>
+      <p class="text-xs text-slate-500 mt-1 mb-5 leading-relaxed">
+        Ingresá las credenciales asignadas para acceder al configurador oficial de modelos 0KM.
+      </p>
+
+      <form id="beta-login-form" class="space-y-3.5 text-left">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="beta-user">Usuario</label>
+          <input 
+            type="text" 
+            id="beta-user" 
+            required 
+            autocomplete="username" 
+            placeholder="admin" 
+            class="w-full text-xs sm:text-sm py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0095C8] transition-all"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="beta-pass">Contraseña</label>
+          <input 
+            type="password" 
+            id="beta-pass" 
+            required 
+            autocomplete="current-password" 
+            placeholder="•••••" 
+            class="w-full text-xs sm:text-sm py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0095C8] transition-all"
+          />
+        </div>
+
+        <p id="beta-error" class="hidden text-xs text-red-600 font-semibold text-center pt-1"></p>
+
+        <button 
+          type="submit" 
+          class="w-full py-3 rounded-xl bg-[#0095C8] hover:bg-[#0077A0] text-white font-extrabold text-xs uppercase tracking-wider shadow-md transition-all active:scale-98 mt-2"
+        >
+          Ingresar al Catálogo 0KM
+        </button>
+
+        <a 
+          href="index.html" 
+          class="block text-center text-xs text-slate-400 hover:text-slate-600 font-medium pt-2 transition-colors"
+        >
+          ← Volver a la web principal
+        </a>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 7. FOOTER                                  -->
+  <!-- ========================================== -->
+  <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-900 text-xs mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div class="flex items-center gap-3">
+          <img src="assets/logo.png" alt="Budaner" class="h-8 w-auto bg-white/90 p-1 rounded-md object-contain" />
+          <span class="text-slate-400">Budaner Automotores • Catálogo Oficial 0KM</span>
+        </div>
+        <p class="text-[11px] text-slate-500">
+          © 2026 BUDANER AUTOMOTORES. Ruta 9 km 1128, Zanjón, Santiago del Estero.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data/vehiculos0km.js"></script>
+  <script src="data/carStudioSvg.js"></script>
+  <script src="app0km.js"></script>
+</body>
+</html>
