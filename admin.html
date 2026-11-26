@@ -67,7 +67,7 @@
           <div><label class="lbl">Estado / Financiación</label>
             <select name="status" class="inp">
               <option value="apto">Apto Financiación</option>
-              <option value="senado">Señado</option>
+              <option value="reservado">Reservado</option>
               <option value="vendido">Vendido</option>
               <option value="sin">Sin etiqueta</option>
             </select></div>
@@ -167,8 +167,8 @@
         const im = v.imagenes || v.photos || [];
         const ph = im[0] ? `<img src="${esc(im[0])}" class="w-full h-full object-cover">` : '';
         const st = v.status || 'apto';
-        const stBadge = st === 'senado' || st === 'reservado'
-          ? '<span class="inline-block bg-amber-500 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded uppercase">Señado</span>'
+        const stBadge = st === 'reservado' || st === 'senado'
+          ? '<span class="inline-block bg-amber-500 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded uppercase">Reservado</span>'
           : st === 'vendido'
           ? '<span class="inline-block bg-red-600 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded uppercase">Vendido</span>'
           : st === 'apto'
@@ -195,7 +195,7 @@
             <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Cambiar Estado:</span>
             <div class="flex items-center gap-1.5">
               <button data-status="apto" data-id="${esc(v.id)}" class="px-2 py-0.5 rounded-md font-bold transition-all ${st === 'apto' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700'}" title="Marcar como Apto Financiación">Disponible</button>
-              <button data-status="senado" data-id="${esc(v.id)}" class="px-2.5 py-1 rounded-md font-extrabold transition-all ${st === 'senado' || st === 'reservado' ? 'bg-amber-500 text-white shadow-sm scale-105 ring-2 ring-amber-300' : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'}" title="Marcar como SEÑADO">🟡 SEÑADO</button>
+              <button data-status="reservado" data-id="${esc(v.id)}" class="px-2.5 py-1 rounded-md font-extrabold transition-all ${st === 'reservado' || st === 'senado' ? 'bg-amber-500 text-white shadow-sm scale-105 ring-2 ring-amber-300' : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'}" title="Marcar como RESERVADO">🟡 RESERVADO</button>
               <button data-status="vendido" data-id="${esc(v.id)}" class="px-2.5 py-1 rounded-md font-extrabold transition-all ${st === 'vendido' ? 'bg-red-600 text-white shadow-sm scale-105 ring-2 ring-red-300' : 'bg-red-100 hover:bg-red-200 text-red-800 border border-red-300'}" title="Marcar como VENDIDO">🔴 VENDIDO</button>
             </div>
           </div>

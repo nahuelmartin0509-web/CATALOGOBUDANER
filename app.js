@@ -86,10 +86,10 @@ function badgeHtml(v, big) {
       Vendido
     </span>`;
   }
-  if (v.status === "senado" || v.status === "reservado") {
+  if (v.status === "reservado" || v.status === "senado") {
     return `<span class="inline-flex items-center gap-1 bg-amber-500 text-white font-black rounded-full shadow-md uppercase tracking-wider ${size}">
       <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-      Señado
+      Reservado
     </span>`;
   }
   if (v.status === "apto") {
@@ -296,7 +296,7 @@ function openVehicleModal(id, keepScroll) {
     <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 mb-5 flex items-center gap-3">
       <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0">!</div>
       <div>
-        <h4 class="text-xs sm:text-sm font-bold text-amber-900">Unidad Señada</h4>
+        <h4 class="text-xs sm:text-sm font-bold text-amber-900">Unidad Reservada</h4>
         <p class="text-xs text-amber-700">Este vehículo cuenta con reserva previa. Podés consultar por unidades similares.</p>
       </div>
     </div>` : v.status === "vendido" ? `
