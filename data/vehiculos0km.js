@@ -15,7 +15,7 @@ const VEHICULOS_0KM = [
     tipo: "Hatchback & Sedán",
     subtitulo: "Gama Oficial Hatchback 5P y Sedán Onix Plus 4P",
     slug: "chevrolet-onix",
-    videoYoutubeId: "c2Q-eN6u7lY", // Video comercial oficial Chevrolet Onix
+    videoYoutubeId: "Gn0GGdqbbtQ", // Video comercial oficial Chevrolet Onix Argentina
     imagenCard: "assets/0km/CHEVROLET/ONIX/ONIX/Blanco%20Summit.png",
     
     // Variantes de carrocería según Chevrolet Argentina
@@ -175,7 +175,7 @@ const VEHICULOS_0KM = [
     tipo: "SUV",
     subtitulo: "Nueva Generación Fabricada en Argentina (Plataforma CMP)",
     slug: "peugeot-2008",
-    videoYoutubeId: "4T3q2c5F7kI", // Presentación oficial Nuevo Peugeot 2008 Argentina
+    videoYoutubeId: "9O4fDmg_L4Q", // Presentación oficial Nuevo Peugeot 2008 Argentina
     imagenCard: "assets/0km/PEUGEOT/2008/VERSIONES/2008-versiones-gt.avif",
 
     colores: [
@@ -274,7 +274,7 @@ const VEHICULOS_0KM = [
     tipo: "Sedán",
     subtitulo: "El Auto Más Elegido de Argentina • Fabricado en Planta Ferreyra, Córdoba",
     slug: "fiat-cronos",
-    videoYoutubeId: "mH2K9a4v7tY", // Spot oficial Fiat Cronos Argentina
+    videoYoutubeId: "zgR3zdQ4eNo", // Spot oficial Fiat Cronos Argentina
     imagenCard: "assets/0km/FIAT/CRONOS/plata.png",
 
     colores: [

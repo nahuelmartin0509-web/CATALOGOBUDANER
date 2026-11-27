@@ -136,16 +136,33 @@ function renderZeroCatalog() {
   }).join('');
 }
 
-// Configuración de tabs de marca
+// Configuración de tabs de marca y navegación bidireccional
 function setupBrandTabs() {
   document.querySelectorAll(".brand-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".brand-tab").forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
       currentBrandFilter = tab.getAttribute("data-brand") || "ALL";
-      renderZeroCatalog();
+
+      // Si el usuario está dentro del detalle de un vehículo, cerramos la ficha y volvemos al catálogo filtrado
+      if (activeVehicle) {
+        closeCarDetail(true);
+      } else {
+        renderZeroCatalog();
+        window.scrollTo({ top: 120, behavior: "smooth" });
+      }
     });
   });
+}
+
+function resetToCatalog(brand = "ALL") {
+  currentBrandFilter = brand;
+  document.querySelectorAll(".brand-tab").forEach(tab => {
+    const b = tab.getAttribute("data-brand") || "ALL";
+    if (b === brand) tab.classList.add("active");
+    else tab.classList.remove("active");
+  });
+  closeCarDetail(true);
 }
 
 // ==========================================
@@ -176,13 +193,33 @@ function openCarDetail(id) {
   document.getElementById("detail-model-title").textContent = v.modelo;
   document.getElementById("detail-type-subtitle").textContent = v.subtitulo || `${v.tipo} 0KM • Mercado Oficial Argentina`;
 
+  // Sincronizar botones de cambio rápido entre modelos
+  document.querySelectorAll(".quick-car-btn").forEach(btn => {
+    const btnCarId = btn.getAttribute("data-car-id");
+    if (btnCarId === v.id) {
+      btn.className = "quick-car-btn text-xs font-black px-3.5 py-1.5 rounded-full bg-[#0095C8] text-white shadow-xs transition-all";
+    } else {
+      btn.className = "quick-car-btn text-xs font-bold px-3.5 py-1.5 rounded-full text-slate-600 hover:text-[#0095C8] hover:bg-slate-50 transition-all";
+    }
+  });
+
+  // Sincronizar barra de marcas para reflejar la marca del vehículo abierto
+  document.querySelectorAll(".brand-tab").forEach(tab => {
+    const b = tab.getAttribute("data-brand");
+    if (b === v.marca) {
+      tab.classList.add("active");
+    } else {
+      tab.classList.remove("active");
+    }
+  });
+
   // Selector de Carrocería (si aplica)
   renderCarroceriaSelector();
 
-  // Video YouTube (embed responsive modo silencioso/loop para experiencia fluida)
+  // Video YouTube (Autoplay automático en silencio conforme a políticas de navegadores, con controles para activar sonido)
   const videoIframe = document.getElementById("detail-video-iframe");
   if (videoIframe) {
-    videoIframe.src = `https://www.youtube.com/embed/${v.videoYoutubeId}?autoplay=1&mute=1&loop=1&playlist=${v.videoYoutubeId}&controls=1&rel=0`;
+    videoIframe.src = `https://www.youtube.com/embed/${v.videoYoutubeId}?autoplay=1&mute=1&loop=1&playlist=${v.videoYoutubeId}&controls=1&enablejsapi=1&rel=0&playsinline=1`;
   }
 
   // Configurador de Color
@@ -196,9 +233,11 @@ function openCarDetail(id) {
   window.scrollTo({ top: 120, behavior: "smooth" });
 }
 
-function closeCarDetail() {
-  document.getElementById("detail-view").classList.add("hidden");
-  document.getElementById("catalog-view").classList.remove("hidden");
+function closeCarDetail(scroll = true) {
+  const detailEl = document.getElementById("detail-view");
+  const catalogEl = document.getElementById("catalog-view");
+  if (detailEl) detailEl.classList.add("hidden");
+  if (catalogEl) catalogEl.classList.remove("hidden");
   
   // Detener video
   const videoIframe = document.getElementById("detail-video-iframe");
@@ -206,6 +245,11 @@ function closeCarDetail() {
   
   activeVehicle = null;
   activeCarroceria = null;
+
+  renderZeroCatalog();
+  if (scroll) {
+    window.scrollTo({ top: 120, behavior: "smooth" });
+  }
 }
 
 // Selector de Carrocería (Hatchback vs Onix Plus)
@@ -429,3 +473,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// Exponer funciones de navegación e interacción globales
+window.openCarDetail = openCarDetail;
+window.closeCarDetail = closeCarDetail;
+window.resetToCatalog = resetToCatalog;
+window.selectColor = selectColor;
+window.selectVersion = selectVersion;
+window.selectCarroceria = selectCarroceria;
